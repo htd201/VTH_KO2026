@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KICKOFF CHESS 2026 - Quản lý giải đấu chuyên nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --accent: #f59e0b;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 99px;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .winner-card {
+            background: linear-gradient(145deg, #ffffff, #f0fdfa);
+            border: 2px solid var(--primary);
+        }
+
+        .podium-1 {
+            background: linear-gradient(to bottom, #fef3c7, #ffffff);
+            border: 2px solid #f59e0b;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen">
+
+    <!-- Header Chuyên nghiệp -->
+    <header class="glass-morphism sticky top-0 z-50 border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div class="w-12 h-12 bg-teal-600 rounded-2xl rotate-3 shadow-lg flex items-center justify-center text-white">
+                        <i data-lucide="trophy" class="w-6 h-6"></i>
+                    </div>
+                    <div class="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full border-2 border-white"></div>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight leading-none uppercase">KICKOFF CHESS 2026</h1>
+                    <p class="text-[10px] font-bold text-teal-600 uppercase tracking-[0.2em] mt-1">Sức mạnh từ sự đoàn kết</p>
+                </div>
+            </div>
+            
+            <nav id="nav-tabs" class="hidden flex bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200">
+                <button onclick="setActiveTab('quarter')" class="tab-btn active px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2" data-tab="quarter">
+                    <i data-lucide="grid-3x3" class="w-4 h-4"></i> Tứ Kết
+                </button>
+                <button onclick="setActiveTab('semi')" class="tab-btn px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-slate-500" data-tab="semi">
+                    <i data-lucide="swords" class="w-4 h-4"></i> Bán Kết
+                </button>
+                <button onclick="setActiveTab('final')" class="tab-btn px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 text-slate-500" data-tab="final">
+                    <i data-lucide="crown" class="w-4 h-4"></i> Chung Kết
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10">
+        
+        <!-- MÀN HÌNH 1: SETUP -->
+        <section id="setup-section" class="max-w-3xl mx-auto animate-slide-up">
+            <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                <div class="bg-slate-900 p-10 text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full opacity-10">
+                        <svg width="100%" height="100%"><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/></pattern><rect width="100%" height="100%" fill="url(#grid)" /></svg>
+                    </div>
+                    <div class="relative z-10">
+                        <span class="inline-block px-4 py-1.5 bg-teal-500/20 text-teal-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-teal-500/30 mb-4">Giải đấu nội bộ 2026</span>
+                        <h2 class="text-3xl font-extrabold text-white">Khởi tạo giải đấu</h2>
+                        <p class="text-slate-400 text-sm mt-2">Nhập danh sách 8 đội tuyển tham dự tranh cúp vô địch</p>
+                    </div>
+                </div>
+                
+                <div class="p-10">
+                    <div id="team-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                        <!-- Rendered via JS -->
+                    </div>
+                    
+                    <button onclick="startTournament()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-5 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-teal-600/20 transition-all hover:-translate-y-1 active:scale-95 text-lg">
+                        BẮT ĐẦU VÒNG TỨ KẾT <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÀN HÌNH 2: TOURNAMENT -->
+        <section id="tournament-section" class="hidden">
+            
+            <!-- Bảng Vinh Danh (Chỉ hiện khi kết thúc) -->
+            <div id="final-results" class="hidden mb-16 animate-slide-up">
+                <div class="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -top-24 -right-24 w-64 h-64 bg-amber-100 rounded-full blur-3xl opacity-50"></div>
+                    <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-teal-100 rounded-full blur-3xl opacity-50"></div>
+                    
+                    <div class="text-center mb-12 relative z-10">
+                        <div class="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                            <i data-lucide="award" class="w-10 h-10 text-amber-600"></i>
+                        </div>
+                        <h2 class="text-4xl font-[900] text-slate-900 uppercase tracking-tight">Bảng Vàng Vinh Danh</h2>
+                        <p class="text-slate-500 font-bold uppercase text-xs tracking-[0.3em] mt-2">Kickoff Chess Tournament 2026</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end max-w-4xl mx-auto">
+                        <!-- Giải Nhì -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-[2rem] p-8 text-center order-2 md:order-1">
+                            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 text-xl font-black text-slate-400 border border-slate-100">2</div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Á Quân</p>
+                            <p id="rank-2-name" class="text-xl font-extrabold text-slate-700">---</p>
+                        </div>
+                        <!-- Giải Nhất -->
+                        <div class="podium-1 p-10 rounded-[2.5rem] text-center shadow-2xl border-4 border-amber-400 order-1 md:order-2 transform md:scale-110">
+                            <div class="relative inline-block mb-6">
+                                <i data-lucide="crown" class="w-16 h-16 text-amber-500"></i>
+                                <div class="absolute inset-0 animate-ping opacity-20">
+                                    <i data-lucide="crown" class="w-16 h-16 text-amber-500"></i>
+                                </div>
+                            </div>
+                            <p class="text-[10px] font-black text-amber-600 uppercase mb-2 tracking-widest">NHÀ VÔ ĐỊCH</p>
+                            <p id="rank-1-name" class="text-3xl font-black text-teal-800">---</p>
+                        </div>
+                        <!-- Giải Ba -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-[2rem] p-8 text-center order-3">
+                            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 text-xl font-black text-orange-400 border border-slate-100">3</div>
+                            <p class="text-[10px] font-black text-orange-400 uppercase mb-2 tracking-widest">Đồng hạng Ba</p>
+                            <div id="rank-3-names" class="space-y-1">
+                                <p class="text-base font-extrabold text-slate-700">---</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 text-center">
+                        <button onclick="location.reload()" class="px-8 py-3 bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
+                            Xóa kết quả & Tạo giải đấu mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Grid -->
+            <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- JS dynamic render -->
+            </div>
+            
+            <div id="finalize-btn-container" class="mt-12 max-w-xl mx-auto">
+                <!-- JS dynamic render -->
+            </div>
+
+            <!-- THỂ LỆ GIẢI ĐẤU -->
+            <div id="rules-section" class="mt-24">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-px flex-1 bg-slate-200"></div>
+                    <h3 class="text-sm font-black text-slate-400 uppercase tracking-[0.4em] flex items-center gap-2">
+                        <i data-lucide="scroll-text" class="w-4 h-4"></i> Thể lệ thi đấu
+                    </h3>
+                    <div class="h-px flex-1 bg-slate-200"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 mb-2 uppercase text-xs tracking-wider">Luật xoay vòng</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed font-medium">4 thành viên luân phiên đi từng nước theo thứ tự đăng ký. Không được phép thay đổi thứ tự này suốt ván đấu.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="timer" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 mb-2 uppercase text-xs tracking-wider">Thời gian & Hiệp phụ</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed font-medium">15 phút/đội/ván. Nếu hòa sau thời gian chính, mỗi đội cử 1 đại diện đấu hiệp phụ 5 phút.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="message-square" class="w-5 h-5"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 mb-2 uppercase text-xs tracking-wider">Trao đổi chiến thuật</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed font-medium">Đội chỉ được phép thảo luận khi đồng hồ của đội mình đang chạy. Chạm quân là phải đi (Touch-move rule).</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-slate-900 p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-teal-500/20 rounded-full flex items-center justify-center text-teal-400">
+                            <i data-lucide="info" class="w-5 h-5"></i>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium">Vi phạm luật xoay vòng sẽ bị cảnh cáo lần 1, tái phạm lần 2 sẽ bị <span class="text-red-400 font-bold uppercase">Xử thua</span> ngay lập tức.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="px-4 py-1.5 bg-teal-500/10 text-teal-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-teal-500/20">🏆 Vinh quang cho nhà vô địch</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-12">
+        <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em]">VT Healthcare Logistics & Strategy © 2026</p>
+    </footer>
+
+    <script>
+        // Data Store
+        let activeTab = 'setup';
+        let isFinalized = false;
+        let teams = [
+            { id: 1, name: 'Chiến Binh Rồng' }, { id: 2, name: 'Vua Cờ Vây' },
+            { id: 3, name: 'Hổ Cáp' }, { id: 4, name: 'Sơn Dương' },
+            { id: 5, name: 'Thiên Ưng' }, { id: 6, name: 'Mãnh Thú' },
+            { id: 7, name: 'Phi Đội 1' }, { id: 8, name: 'Vệ Binh' }
+        ];
+
+        let matches = {
+            quarter: [
+                { id: 'TK1', teamA: 1, teamB: 2, winner: null },
+                { id: 'TK2', teamA: 3, teamB: 4, winner: null },
+                { id: 'TK3', teamA: 5, teamB: 6, winner: null },
+                { id: 'TK4', teamA: 7, teamB: 8, winner: null },
+            ],
+            semi: [
+                { id: 'BK1', teamA: null, teamB: null, winner: null },
+                { id: 'BK2', teamA: null, teamB: null, winner: null },
+            ],
+            final: { id: 'CK', teamA: null, teamB: null, winner: null }
+        };
+
+        function renderSetup() {
+            const container = document.getElementById('team-inputs');
+            container.innerHTML = teams.map((team, idx) => `
+                <div class="group">
+                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Vị trí ${idx + 1}</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-300">
+                             <i data-lucide="shield" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text" value="${team.name}" oninput="updateTeamName(${team.id}, this.value)"
+                            class="w-full pl-11 pr-4 py-4 rounded-2xl border-2 border-slate-100 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none font-bold text-slate-700 bg-slate-50/50 transition-all" />
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function updateTeamName(id, name) {
+            const team = teams.find(t => t.id === id);
+            if (team) team.name = name;
+        }
+
+        function startTournament() {
+            if (teams.some(t => t.name.trim() === "")) return showToast("Vui lòng nhập đầy đủ tên 8 đội!");
+            document.getElementById('setup-section').classList.add('hidden');
+            document.getElementById('nav-tabs').classList.remove('hidden');
+            document.getElementById('tournament-section').classList.remove('hidden');
+            setActiveTab('quarter');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setActiveTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('active');
+                    btn.classList.remove('text-slate-500');
+                } else {
+                    btn.classList.remove('active');
+                    btn.classList.add('text-slate-500');
+                }
+            });
+            renderMatches();
+        }
+
+        function handleSelectWinner(stage, matchId, teamId) {
+            if (!teamId || isFinalized) return;
+            if (stage === 'quarter') matches.quarter = matches.quarter.map(m => m.id === matchId ? { ...m, winner: teamId } : m);
+            else if (stage === 'semi') matches.semi = matches.semi.map(m => m.id === matchId ? { ...m, winner: teamId } : m);
+            else matches.final.winner = teamId;
+            renderMatches();
+        }
+
+        function finalizeRound(stage) {
+            if (stage === 'quarter') {
+                const winners = matches.quarter.map(m => m.winner);
+                if (winners.includes(null)) return showToast("Phải xác định đủ người thắng cho 4 trận Tứ Kết!");
+                matches.semi[0].teamA = winners[0]; matches.semi[0].teamB = winners[1];
+                matches.semi[1].teamA = winners[2]; matches.semi[1].teamB = winners[3];
+                setActiveTab('semi');
+            } else if (stage === 'semi') {
+                const winners = matches.semi.map(m => m.winner);
+                if (winners.includes(null)) return showToast("Phải xác định đủ người thắng cho 2 trận Bán Kết!");
+                matches.final.teamA = winners[0]; matches.final.teamB = winners[1];
+                setActiveTab('final');
+            } else if (stage === 'final') {
+                if (!matches.final.winner) return showToast("Chưa chọn nhà Vô Địch!");
+                showFinalResults();
+            }
+        }
+
+        function showFinalResults() {
+            isFinalized = true;
+            const wId = matches.final.winner;
+            const rId = wId === matches.final.teamA ? matches.final.teamB : matches.final.teamA;
+            const b3Ids = matches.semi.map(m => m.winner === m.teamA ? m.teamB : m.teamA);
+
+            document.getElementById('rank-1-name').innerText = teams.find(t => t.id === wId)?.name;
+            document.getElementById('rank-2-name').innerText = teams.find(t => t.id === rId)?.name;
+            document.getElementById('rank-3-names').innerHTML = b3Ids.map(id => 
+                `<p class="text-base font-extrabold text-slate-700">${teams.find(t => t.id === id)?.name}</p>`
+            ).join('');
+
+            document.getElementById('final-results').classList.remove('hidden');
+            setActiveTab('final');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderMatches() {
+            const grid = document.getElementById('matches-grid');
+            const btnContainer = document.getElementById('finalize-btn-container');
+            let currentMatches = [];
+            let btnHtml = '';
+
+            if (activeTab === 'quarter') {
+                currentMatches = matches.quarter;
+                if (!isFinalized) btnHtml = `<button onclick="finalizeRound('quarter')" class="w-full bg-slate-900 text-white font-bold py-5 rounded-2xl shadow-xl transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-wider text-sm">Tiến vào Bán Kết <i data-lucide="chevron-right" class="inline w-4 h-4 ml-1"></i></button>`;
+            } else if (activeTab === 'semi') {
+                currentMatches = matches.semi;
+                if (!isFinalized && matches.semi[0].teamA) btnHtml = `<button onclick="finalizeRound('semi')" class="w-full bg-slate-900 text-white font-bold py-5 rounded-2xl shadow-xl transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-wider text-sm">Tiến vào Chung Kết <i data-lucide="chevron-right" class="inline w-4 h-4 ml-1"></i></button>`;
+            } else {
+                currentMatches = [matches.final];
+                if (!isFinalized && matches.final.teamA && matches.final.winner) {
+                    btnHtml = `<button onclick="finalizeRound('final')" class="w-full bg-amber-500 text-white font-black py-6 rounded-2xl shadow-2xl shadow-amber-500/30 transition-all hover:-translate-y-1 active:scale-95 uppercase tracking-widest text-lg">KẾT THÚC & TRAO GIẢI <i data-lucide="party-popper" class="inline w-6 h-6 ml-2"></i></button>`;
+                }
+            }
+
+            btnContainer.innerHTML = btnHtml;
+
+            grid.innerHTML = currentMatches.map(m => {
+                const tA = teams.find(t => t.id === m.teamA) || { name: 'Đang xác định...' };
+                const tB = teams.find(t => t.id === m.teamB) || { name: 'Đang xác định...' };
+                const isWinnerA = m.winner === m.teamA;
+                const isWinnerB = m.winner === m.teamB;
+                
+                return `
+                <div class="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm animate-slide-up relative">
+                    <div class="bg-slate-50/50 px-6 py-3 border-b border-slate-100 flex justify-between items-center">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${m.id}</span>
+                        ${m.winner ? '<span class="flex items-center gap-1 text-[10px] font-black text-teal-600 uppercase"><i data-lucide="check" class="w-3 h-3"></i> Đã có kết quả</span>' : ''}
+                    </div>
+                    <div class="p-8 space-y-4">
+                        <button onclick="handleSelectWinner('${activeTab}', '${m.id}', ${m.teamA})" 
+                            ${!m.teamA || isFinalized ? 'disabled' : ''}
+                            class="w-full group flex justify-between items-center p-5 rounded-2xl border-2 transition-all ${isWinnerA ? 'border-teal-500 bg-teal-50 shadow-lg shadow-teal-500/10' : 'border-slate-50 bg-slate-50 hover:border-slate-200'}">
+                            <span class="font-extrabold text-base ${isWinnerA ? 'text-teal-900' : 'text-slate-600'}">${tA.name}</span>
+                            <div class="w-6 h-6 rounded-lg flex items-center justify-center border-2 ${isWinnerA ? 'bg-teal-500 border-teal-500 text-white' : 'border-slate-200 group-hover:border-slate-400'}">
+                                ${isWinnerA ? '<i data-lucide="check" class="w-4 h-4"></i>' : ''}
+                            </div>
+                        </button>
+                        
+                        <div class="flex items-center gap-4 py-2">
+                            <div class="h-px flex-1 bg-slate-100"></div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase italic">Đối đầu</span>
+                            <div class="h-px flex-1 bg-slate-100"></div>
+                        </div>
+
+                        <button onclick="handleSelectWinner('${activeTab}', '${m.id}', ${m.teamB})" 
+                            ${!m.teamB || isFinalized ? 'disabled' : ''}
+                            class="w-full group flex justify-between items-center p-5 rounded-2xl border-2 transition-all ${isWinnerB ? 'border-teal-500 bg-teal-50 shadow-lg shadow-teal-500/10' : 'border-slate-50 bg-slate-50 hover:border-slate-200'}">
+                            <span class="font-extrabold text-base ${isWinnerB ? 'text-teal-900' : 'text-slate-600'}">${tB.name}</span>
+                            <div class="w-6 h-6 rounded-lg flex items-center justify-center border-2 ${isWinnerB ? 'bg-teal-500 border-teal-500 text-white' : 'border-slate-200 group-hover:border-slate-400'}">
+                                ${isWinnerB ? '<i data-lucide="check" class="w-4 h-4"></i>' : ''}
+                            </div>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            if (activeTab === 'final') {
+                grid.className = "max-w-xl mx-auto space-y-4";
+                if (!matches.final.teamA) {
+                    grid.innerHTML = `
+                        <div class="bg-white rounded-[2rem] p-12 text-center border-2 border-dashed border-slate-200">
+                            <i data-lucide="hourglass" class="w-12 h-12 text-slate-300 mx-auto mb-4 animate-pulse"></i>
+                            <h3 class="text-slate-400 font-bold uppercase text-sm">Đang chờ các trận Bán Kết</h3>
+                        </div>
+                    `;
+                }
+            } else {
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-8";
+            }
+            
+            lucide.createIcons();
+        }
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-xs font-bold z-[100] animate-slide-up flex items-center gap-3 shadow-2xl";
+            t.innerHTML = `<i data-lucide="alert-circle" class="text-amber-500 w-4 h-4"></i> ${msg}`;
+            document.body.appendChild(t);
+            lucide.createIcons();
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        window.onload = () => { renderSetup(); lucide.createIcons(); };
+    </script>
+</body>
+</html>

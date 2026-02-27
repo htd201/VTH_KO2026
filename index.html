@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VT Healthcare Olympic 2026 - All-in-One</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;700;900&display=swap');
+        
+        body { margin: 0; background-color: #f1f5f9; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+        .nav-card { transition: all 0.3s ease; cursor: pointer; }
+        .nav-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        
+        .module-frame {
+            width: 100%;
+            height: calc(100vh - 64px);
+            border: none;
+            display: none;
+        }
+        .module-frame.active {
+            display: block;
+        }
+        
+        .hidden { display: none !important; }
+
+        /* Custom Modal Style for Reset Confirmation */
+        #reset-modal {
+            backdrop-filter: blur(4px);
+            display: none;
+        }
+        #reset-modal.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- NAVIGATION BAR -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-[1000] px-4 py-3 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showHome()">
+                <div class="bg-teal-600 p-2 rounded-xl">
+                    <i data-lucide="trophy" class="text-white w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-slate-800 text-lg leading-tight uppercase tracking-tight">KO 2026</h1>
+                    <p class="text-[10px] text-teal-600 font-bold uppercase tracking-widest">Olympic Hub</p>
+                </div>
+            </div>
+
+            <!-- Nút quay lại Hub và Reset khi đang ở trong module -->
+            <div id="module-controls" class="hidden flex items-center gap-4">
+                <span id="active-module-name" class="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2 border-r pr-4 border-slate-200">Đang chạy</span>
+                
+                <button onclick="confirmReset()" class="flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold transition-all mr-2">
+                    <i data-lucide="refresh-ccw" class="w-4 h-4"></i>
+                    RESET MÔN NÀY
+                </button>
+
+                <button onclick="showHome()" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    QUAY LẠI HUB
+                </button>
+            </div>
+
+            <div id="home-indicator" class="flex items-center gap-4">
+                <div class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Dashboard</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- DASHBOARD VIEW -->
+    <main id="home-view" class="max-w-7xl mx-auto px-6 py-12">
+        <div class="mb-12 text-center">
+            <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase">Hệ Thống Olympic KO 2026</h2>
+            <p class="text-slate-500 font-medium">Chọn bộ công tính điểm phù hợp. Reset dữ liệu sẽ chỉ ảnh hưởng đến môn đang chọn.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Football -->
+            <div onclick="switchModule('football', 'Bóng Đá')" class="nav-card bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-xl relative overflow-hidden group">
+                <div class="bg-teal-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="volleyball" class="text-teal-600 w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-slate-800 mb-2 uppercase">Bóng Đá</h3>
+                <p class="text-slate-500 text-sm mb-6">Tính điểm vòng bảng, hệ số phụ và danh hiệu cá nhân.</p>
+                <span class="text-teal-600 font-bold text-sm">Vào module <i data-lucide="arrow-right" class="inline w-4 h-4"></i></span>
+            </div>
+
+            <!-- Badminton -->
+            <div onclick="switchModule('badminton', 'Cầu Lông')" class="nav-card bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-xl relative overflow-hidden group">
+                <div class="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="wind" class="text-blue-600 w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-slate-800 mb-2 uppercase">Cầu Lông</h3>
+                <p class="text-slate-500 text-sm mb-6">Trọng tài ảo cho đấu hiệp, phân nhánh và cập nhật trực tiếp.</p>
+                <span class="text-blue-600 font-bold text-sm">Vào module <i data-lucide="arrow-right" class="inline w-4 h-4"></i></span>
+            </div>
+
+            <!-- Chess -->
+            <div onclick="switchModule('chess', 'Cờ Vua')" class="nav-card bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-xl relative overflow-hidden group">
+                <div class="bg-amber-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
+                    <i data-lucide="crown" class="text-amber-600 w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black text-slate-800 mb-2 uppercase">Cờ Vua</h3>
+                <p class="text-slate-500 text-sm mb-6">Quản lý các lượt đấu trí, bảng xếp hạng và chung kết.</p>
+                <span class="text-amber-600 font-bold text-sm">Vào module <i data-lucide="arrow-right" class="inline w-4 h-4"></i></span>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODULE AREA (IFRAMES) -->
+    <div id="module-container" class="hidden">
+        <iframe id="iframe-football" class="module-frame" src="Code_TinhdiemBongDa2026_Ver 3_ HTML.html"></iframe>
+        <iframe id="iframe-badminton" class="module-frame" src="CachtinhdiemCauLong_KO2026_Ver4_HTML.html"></iframe>
+        <iframe id="iframe-chess" class="module-frame" src="GiaiCo_KO2026_Ver2_HTML.html"></iframe>
+    </div>
+
+    <!-- RESET CONFIRMATION MODAL -->
+    <div id="reset-modal" class="fixed inset-0 z-[2000] items-center justify-center p-4 bg-slate-900/60">
+        <div class="bg-white rounded-[2rem] max-w-sm w-full p-8 shadow-2xl animate-in zoom-in duration-200">
+            <div class="bg-rose-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                <i data-lucide="alert-triangle" class="text-rose-600 w-8 h-8"></i>
+            </div>
+            <h3 class="text-xl font-black text-slate-900 text-center mb-2 uppercase">Xóa Dữ Liệu?</h3>
+            <p id="reset-modal-desc" class="text-slate-500 text-center text-sm mb-8 leading-relaxed">Hành động này sẽ xóa toàn bộ kết quả của môn này. Các môn khác sẽ không bị ảnh hưởng.</p>
+            <div class="flex gap-3">
+                <button onclick="closeResetModal()" class="flex-1 py-3 font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">HỦY</button>
+                <button onclick="executeReset()" class="flex-1 py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 shadow-lg shadow-rose-200 transition-all">XÁC NHẬN XÓA</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let currentActiveModule = '';
+
+        function switchModule(type, name) {
+            currentActiveModule = type;
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('home-indicator').classList.add('hidden');
+            document.getElementById('module-container').classList.remove('hidden');
+            document.getElementById('module-controls').classList.remove('hidden');
+            
+            document.getElementById('active-module-name').innerText = name;
+
+            const frames = document.querySelectorAll('.module-frame');
+            frames.forEach(f => f.classList.remove('active'));
+            
+            const activeFrame = document.getElementById('iframe-' + type);
+            activeFrame.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showHome() {
+            currentActiveModule = '';
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('home-indicator').classList.remove('hidden');
+            document.getElementById('module-container').classList.add('hidden');
+            document.getElementById('module-controls').classList.add('hidden');
+        }
+
+        // RESET LOGIC THEO TỪNG MÔN
+        function confirmReset() {
+            const names = {
+                football: 'Bóng Đá',
+                badminton: 'Cầu Lông',
+                chess: 'Cờ Vua'
+            };
+            document.getElementById('reset-modal-desc').innerText = `Hành động này sẽ xóa toàn bộ kết quả đã nhập của môn ${names[currentActiveModule]}. Các môn khác vẫn được giữ nguyên.`;
+            document.getElementById('reset-modal').classList.add('active');
+        }
+
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.remove('active');
+        }
+
+        function executeReset() {
+            // Chỉ xóa key của môn tương ứng trong localStorage
+            if (currentActiveModule === 'football') {
+                // Xóa các key liên quan đến module bóng đá (dựa trên code bạn cung cấp)
+                localStorage.removeItem('vthc_kickoff_step');
+                localStorage.removeItem('vthc_kickoff_activeTab');
+                localStorage.removeItem('vthc_kickoff_data');
+                localStorage.removeItem('vthc_kickoff_scorers');
+                localStorage.removeItem('vthc_kickoff_goalkeepers');
+            } else if (currentActiveModule === 'badminton') {
+                // Xóa key liên quan đến cầu lông
+                localStorage.removeItem('badmintonDB');
+            } else if (currentActiveModule === 'chess') {
+                // Xóa key liên quan đến cờ vua
+                localStorage.removeItem('vthc_chess_db');
+            }
+
+            // Reload iframe tương ứng
+            const f = document.getElementById('iframe-' + currentActiveModule);
+            const currentSrc = f.src;
+            f.src = '';
+            f.src = currentSrc;
+
+            closeResetModal();
+        }
+    </script>
+</body>
+</html>

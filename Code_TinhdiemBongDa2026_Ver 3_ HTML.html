@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VT Healthcare - Kickoff 2026 League</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .theme-color { color: #15a48f; }
+        .theme-bg { background-color: #15a48f; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app">
+        <!-- Nội dung sẽ được render bởi Javascript -->
+    </div>
+
+    <script>
+        // --- CẤU HÌNH & STATE ---
+        const THEME_COLOR = '#15a48f';
+        let step = 'setup'; // 'setup' hoặc 'tournament'
+        let activeTab = 'mens'; // 'mens' hoặc 'womens'
+
+        let mensTeams = [{ id: 'm1', name: '' }, { id: 'm2', name: '' }, { id: 'm3', name: '' }, { id: 'm4', name: '' }];
+        let mensMatches = [];
+        let mensPenalties = {};
+
+        let womensTeams = [{ id: 'w1', name: '' }, { id: 'w2', name: '' }, { id: 'w3', name: '' }, { id: 'w4', name: '' }];
+        let womensMatches = [];
+        let womensPenalties = {};
+
+        // --- LOGIC TÍNH TOÁN (Giữ nguyên từ bản gốc) ---
+        function calculateStandings(teams, matches, penalties) {
+            let stats = {};
+            teams.forEach(t => {
+                stats[t.id] = { ...t, played: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0, sortBonus: 0 };
+            });
+
+            let playedCount = 0;
+            matches.forEach(m => {
+                if (m.score1 !== null && m.score2 !== null) {
+                    playedCount++;
+                    const t1 = stats[m.team1];
+                    const t2 = stats[m.team2];
+                    t1.played += 1; t2.played += 1;
+                    t1.gf += m.score1; t1.ga += m.score2;
+                    t2.gf += m.score2; t2.ga += m.score1;
+                    if (m.score1 > m.score2) { t1.w += 1; t2.l += 1; t1.pts += 3; }
+                    else if (m.score1 < m.score2) { t2.w += 1; t1.l += 1; t2.pts += 3; }
+                    else { t1.d += 1; t2.d += 1; t1.pts += 1; t2.pts += 1; }
+                }
+            });
+
+            Object.values(stats).forEach(t => t.gd = t.gf - t.ga);
+
+            let sorted = Object.values(stats).sort((a, b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                if (b.gd !== a.gd) return b.gd - a.gd;
+                return b.gf - a.gf;
+            });
+
+            const isAllPlayed = playedCount === 6;
+            let ties = [];
+            if (isAllPlayed) {
+                for (let i = 0; i < sorted.length - 1; i++) {
+                    const a = sorted[i], b = sorted[i+1];
+                    if (a.pts === b.pts && a.gd === b.gd && a.gf === b.gf) {
+                        const tieId = `tie_${a.id}_${b.id}`;
+                        ties.push({ id: tieId, team1: a, team2: b });
+                        const penScores = penalties[tieId];
+                        if (penScores) {
+                            const penA = penScores[a.id] || 0, penB = penScores[b.id] || 0;
+                            a.sortBonus += (penA > penB ? 0.01 : (penA < penB ? -0.01 : 0));
+                            b.sortBonus += (penB > penA ? 0.01 : (penB < penA ? -0.01 : 0));
+                        }
+                    }
+                }
+                sorted = sorted.sort((a, b) => {
+                    const sA = a.pts + (a.sortBonus || 0), sB = b.pts + (b.sortBonus || 0);
+                    if (sB !== sA) return sB - sA;
+                    if (b.gd !== a.gd) return b.gd - a.gd;
+                    return b.gf - a.gf;
+                });
+            }
+            return { standings: sorted, tieBreakers: ties, allMatchesPlayed: isAllPlayed };
+        }
+
+        // --- HÀNH ĐỘNG (ACTIONS) ---
+        function startTournament() {
+            if (mensTeams.some(t => t.name.trim() === '') || womensTeams.some(t => t.name.trim() === '')) {
+                alert("Vui lòng nhập đầy đủ tên các đội!"); return;
+            }
+            const gen = (p) => [
+                { id: `${p}_1`, round: 1, team1: `${p}1`, team2: `${p}2`, score1: null, score2: null, time: '14:00' },
+                { id: `${p}_2`, round: 1, team1: `${p}3`, team2: `${p}4`, score1: null, score2: null, time: '14:00' },
+                { id: `${p}_3`, round: 2, team1: `${p}1`, team2: `${p}3`, score1: null, score2: null, time: '15:00' },
+                { id: `${p}_4`, round: 2, team1: `${p}2`, team2: `${p}4`, score1: null, score2: null, time: '15:00' },
+                { id: `${p}_5`, round: 3, team1: `${p}1`, team2: `${p}4`, score1: null, score2: null, time: '16:00' },
+                { id: `${p}_6`, round: 3, team1: `${p}2`, team2: `${p}3`, score1: null, score2: null, time: '16:00' },
+            ];
+            mensMatches = gen('m');
+            womensMatches = gen('w');
+            step = 'tournament';
+            render();
+        }
+
+        function updateScore(gender, matchId, teamIdx, delta) {
+            const matches = gender === 'mens' ? mensMatches : womensMatches;
+            const match = matches.find(m => m.id === matchId);
+            if (match) {
+                if (teamIdx === 1) {
+                    match.score1 = Math.max(0, (match.score1 ?? 0) + delta);
+                } else {
+                    match.score2 = Math.max(0, (match.score2 ?? 0) + delta);
+                }
+            }
+            render();
+        }
+
+        function updatePenalty(gender, tieId, teamId, delta) {
+            const pens = gender === 'mens' ? mensPenalties : womensPenalties;
+            if (!pens[tieId]) pens[tieId] = {};
+            pens[tieId][teamId] = Math.max(0, (pens[tieId][teamId] || 0) + delta);
+            render();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            render();
+        }
+
+        // --- COMPONENT TEMPLATES ---
+        const LogoVT = () => `
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2 rounded-xl shadow-sm">
+                    <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 35 C20 20, 30 15, 45 15 L80 15 C85 15, 85 20, 85 25 L85 45 C85 45, 60 45, 60 45 C50 45, 45 50, 45 60 L45 85 C45 85, 25 85, 20 80 C15 75, 15 65, 15 50 L15 35 Z" fill="${THEME_COLOR}"/>
+                        <path d="M60 55 C60 50, 65 45, 75 45 L85 45 L85 80 C85 90, 75 95, 60 95 L25 95 C20 95, 20 90, 20 85 L45 85 C55 85, 60 80, 60 70 L60 55 Z" fill="${THEME_COLOR}"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col text-left">
+                    <span class="text-2xl font-black leading-none italic tracking-tight" style="color: ${THEME_COLOR}">VT healthcare</span>
+                    <span class="text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase">Kickoff 2026 • League</span>
+                </div>
+            </div>
+        `;
+
+        function renderSetup() {
+            return `
+                <div class="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+                    ${LogoVT()}
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-4xl border border-slate-100 mt-10">
+                        <h2 class="text-3xl font-black text-center text-slate-800 mb-10 uppercase tracking-tight italic">Thiết lập giải đấu</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-2 text-blue-600 font-black uppercase text-xs border-b pb-3 tracking-widest">
+                                    <i class="fas fa-shield-halved"></i> <span>Bảng Nam (Sân 7)</span>
+                                </div>
+                                ${mensTeams.map((t, i) => `
+                                    <input type="text" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500 transition-all font-bold text-slate-700"
+                                        placeholder="Tên đội Nam ${i+1}" value="${t.name}" oninput="mensTeams[${i}].name = this.value">
+                                `).join('')}
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-2 text-pink-600 font-black uppercase text-xs border-b pb-3 tracking-widest">
+                                    <i class="fas fa-shield-halved"></i> <span>Bảng Nữ (Sân 5)</span>
+                                </div>
+                                ${womensTeams.map((t, i) => `
+                                    <input type="text" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500 transition-all font-bold text-slate-700"
+                                        placeholder="Tên đội Nữ ${i+1}" value="${t.name}" oninput="womensTeams[${i}].name = this.value">
+                                `).join('')}
+                            </div>
+                        </div>
+                        <button onclick="startTournament()" class="w-full mt-12 text-white font-black text-xl py-6 rounded-[2rem] shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all uppercase tracking-[0.2em] theme-bg">
+                            Bắt đầu KICKOFF 2026
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTournament() {
+            const curTeams = activeTab === 'mens' ? mensTeams : womensTeams;
+            const curMatches = activeTab === 'mens' ? mensMatches : womensMatches;
+            const curPens = activeTab === 'mens' ? mensPenalties : womensPenalties;
+            const stats = calculateStandings(curTeams, curMatches, curPens);
+
+            return `
+                <div class="min-h-screen bg-slate-100 pb-20">
+                    <!-- HEADER -->
+                    <div class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b">
+                        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+                            ${LogoVT()}
+                            <div class="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full uppercase tracking-widest">
+                                ${activeTab === 'mens' ? 'Nội dung Nam - Sân 7' : 'Nội dung Nữ - Sân 5'}
+                            </div>
+                        </div>
+                        <div class="max-w-6xl mx-auto flex px-6">
+                            <button onclick="switchTab('mens')" class="flex-1 py-4 text-xs font-black tracking-widest transition-all border-b-4 ${activeTab === 'mens' ? 'text-blue-600 border-blue-600' : 'text-slate-300 border-transparent hover:text-slate-500'}">NAM</button>
+                            <button onclick="switchTab('womens')" class="flex-1 py-4 text-xs font-black tracking-widest transition-all border-b-4 ${activeTab === 'womens' ? 'text-pink-600 border-pink-600' : 'text-slate-300 border-transparent hover:text-slate-500'}">NỮ</button>
+                        </div>
+                    </div>
+
+                    <main class="max-w-6xl mx-auto p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                            <!-- CỘT GHI ĐIỂM -->
+                            <div class="lg:col-span-7 space-y-8">
+                                <div class="bg-white rounded-[2.5rem] shadow-xl p-8 border border-white">
+                                    <div class="flex items-center justify-between mb-10">
+                                        <h2 class="text-2xl font-black flex items-center uppercase italic text-slate-800 tracking-tight">
+                                            <i class="far fa-play-circle mr-3 text-teal-500 text-2xl"></i> Kết quả trực tiếp
+                                        </h2>
+                                        <span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded tracking-widest uppercase">2x10 PHÚT</span>
+                                    </div>
+
+                                    <div class="space-y-14">
+                                        ${[1, 2, 3].map(round => `
+                                            <div class="relative pl-8 border-l-2 border-slate-100 ml-2">
+                                                <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-teal-500 ring-4 ring-teal-50"></div>
+                                                <div class="flex justify-between items-center mb-6">
+                                                    <span class="text-xs font-black text-teal-600 uppercase tracking-[0.2em]">Vòng ${round}</span>
+                                                    <div class="h-px flex-1 bg-slate-50 mx-4"></div>
+                                                </div>
+                                                <div class="grid grid-cols-1 gap-6">
+                                                    ${curMatches.filter(m => m.round === round).map(m => {
+                                                        const t1 = curTeams.find(t => t.id === m.team1);
+                                                        const t2 = curTeams.find(t => t.id === m.team2);
+                                                        return `
+                                                            <div class="group bg-slate-50 p-6 rounded-3xl border border-transparent hover:border-teal-100 hover:bg-white hover:shadow-lg transition-all">
+                                                                <div class="flex items-center justify-between gap-4">
+                                                                    <div class="flex-1 flex flex-col items-center">
+                                                                        <span class="text-sm font-black text-slate-700 text-center mb-3 h-10 flex items-center leading-tight uppercase tracking-tight">${t1.name}</span>
+                                                                        <div class="flex items-center bg-white rounded-2xl border-2 border-slate-100 shadow-inner p-1">
+                                                                            <button onclick="updateScore('${activeTab}', '${m.id}', 1, -1)" class="p-2 text-slate-300 hover:text-red-500"><i class="fas fa-minus text-xs"></i></button>
+                                                                            <span class="w-12 text-center font-black text-3xl ${m.score1 !== null ? 'text-teal-600' : 'text-slate-200'}">${m.score1 ?? '-'}</span>
+                                                                            <button onclick="updateScore('${activeTab}', '${m.id}', 1, 1)" class="p-2 text-slate-300 hover:text-teal-500"><i class="fas fa-plus text-xs"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="px-4 flex flex-col items-center opacity-30 group-hover:opacity-60 transition-opacity">
+                                                                        <div class="text-[9px] font-black text-slate-500 mb-1">${m.time}</div>
+                                                                        <div class="h-px w-6 bg-slate-300 mb-1"></div>
+                                                                        <div class="font-black italic text-xl">VS</div>
+                                                                    </div>
+                                                                    <div class="flex-1 flex flex-col items-center">
+                                                                        <span class="text-sm font-black text-slate-700 text-center mb-3 h-10 flex items-center leading-tight uppercase tracking-tight">${t2.name}</span>
+                                                                        <div class="flex items-center bg-white rounded-2xl border-2 border-slate-100 shadow-inner p-1">
+                                                                            <button onclick="updateScore('${activeTab}', '${m.id}', 2, -1)" class="p-2 text-slate-300 hover:text-red-500"><i class="fas fa-minus text-xs"></i></button>
+                                                                            <span class="w-12 text-center font-black text-3xl ${m.score2 !== null ? 'text-teal-600' : 'text-slate-200'}">${m.score2 ?? '-'}</span>
+                                                                            <button onclick="updateScore('${activeTab}', '${m.id}', 2, 1)" class="p-2 text-slate-300 hover:text-teal-500"><i class="fas fa-plus text-xs"></i></button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        `;
+                                                    }).join('')}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CỘT BẢNG XẾP HẠNG -->
+                            <div class="lg:col-span-5 space-y-8">
+                                <!-- PENALTY KHI CẦN PHÂN HẠNG -->
+                                ${stats.allMatchesPlayed && stats.tieBreakers.length > 0 ? `
+                                    <div class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-[2.5rem] p-8 shadow-xl text-white relative overflow-hidden">
+                                        <i class="fas fa-exclamation-circle absolute -bottom-6 -right-6 text-9xl opacity-20 rotate-12"></i>
+                                        <h2 class="text-xl font-black mb-6 flex items-center uppercase italic tracking-tighter">
+                                            <div class="bg-white/20 p-2 rounded-xl mr-3"><i class="fas fa-bullseye"></i></div>
+                                            PHÂN ĐỊNH PENALTY (5 QUẢ)
+                                        </h2>
+                                        <div class="space-y-4">
+                                            ${stats.tieBreakers.map(tie => `
+                                                <div class="bg-black/10 backdrop-blur-md p-6 rounded-3xl border border-white/20">
+                                                    <div class="flex justify-between items-center text-center">
+                                                        <div class="flex-1 px-1">
+                                                            <div class="text-[10px] font-black uppercase mb-3 truncate">${tie.team1.name}</div>
+                                                            <div class="flex items-center justify-center space-x-3">
+                                                                <button onclick="updatePenalty('${activeTab}', '${tie.id}', '${tie.team1.id}', -1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/30"><i class="fas fa-minus text-xs"></i></button>
+                                                                <span class="text-3xl font-black">${curPens[tie.id]?.[tie.team1.id] || 0}</span>
+                                                                <button onclick="updatePenalty('${activeTab}', '${tie.id}', '${tie.team1.id}', 1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/30"><i class="fas fa-plus text-xs"></i></button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="px-4 text-[10px] font-black opacity-40 italic">PEN</div>
+                                                        <div class="flex-1 px-1">
+                                                            <div class="text-[10px] font-black uppercase mb-3 truncate">${tie.team2.name}</div>
+                                                            <div class="flex items-center justify-center space-x-3">
+                                                                <button onclick="updatePenalty('${activeTab}', '${tie.id}', '${tie.team2.id}', -1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/30"><i class="fas fa-minus text-xs"></i></button>
+                                                                <span class="text-3xl font-black">${curPens[tie.id]?.[tie.team2.id] || 0}</span>
+                                                                <button onclick="updatePenalty('${activeTab}', '${tie.id}', '${tie.team2.id}', 1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/30"><i class="fas fa-plus text-xs"></i></button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <!-- BẢNG XẾP HẠNG CHÍNH -->
+                                <div class="bg-white rounded-[2.5rem] shadow-2xl border border-white overflow-hidden">
+                                    <div class="p-7 text-white font-black flex items-center justify-between ${activeTab === 'mens' ? 'bg-blue-600' : 'bg-pink-500'}">
+                                        <div class="flex items-center uppercase tracking-tight text-lg"><i class="fas fa-trophy mr-3"></i> Bảng xếp hạng</div>
+                                        <i class="fas fa-star opacity-40"></i>
+                                    </div>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-[11px]">
+                                            <thead>
+                                                <tr class="bg-slate-50 text-slate-400 font-black uppercase border-b">
+                                                    <th class="px-3 py-6 text-center w-14">Hạng</th>
+                                                    <th class="px-2 py-6 text-left">Đội bóng</th>
+                                                    <th class="px-2 py-6 text-center w-10">BT</th>
+                                                    <th class="px-2 py-6 text-center w-10">HS</th>
+                                                    <th class="px-4 py-6 text-center font-black text-slate-800 w-14">ĐIỂM</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${stats.standings.map((team, idx) => `
+                                                    <tr class="group border-b transition-all ${idx === 0 ? 'bg-yellow-50/40' : idx === 1 ? 'bg-slate-50/50' : idx === 2 ? 'bg-orange-50/30' : ''}">
+                                                        <td class="px-3 py-6 text-center">
+                                                            <div class="flex justify-center">
+                                                                ${idx === 0 ? '<div class="text-xl" title="Quán Quân">🥇</div>' :
+                                                                  idx === 1 ? '<div class="text-xl" title="Á Quân">🥈</div>' :
+                                                                  idx === 2 ? '<div class="text-xl" title="Hạng Ba">🥉</div>' :
+                                                                  `<div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-400 text-[10px]">${idx + 1}</div>`}
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-2 py-6">
+                                                            <div class="flex flex-col">
+                                                                <span class="font-black text-slate-800 text-xs leading-none uppercase tracking-tight truncate max-w-[100px]">${team.name}</span>
+                                                                <span class="text-[8px] text-slate-400 font-bold mt-1 uppercase">T-H-B: ${team.w}-${team.d}-${team.l}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-2 py-6 text-center font-bold text-slate-600">${team.gf}</td>
+                                                        <td class="px-2 py-6 text-center">
+                                                            <span class="font-black px-1.5 py-0.5 rounded-md ${team.gd > 0 ? 'bg-green-100 text-green-700' : team.gd < 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-500'}">
+                                                                ${team.gd > 0 ? `+${team.gd}` : team.gd}
+                                                            </span>
+                                                        </td>
+                                                        <td class="px-4 py-6 text-center">
+                                                            <div class="text-lg font-black text-slate-900">${team.pts}</div>
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="p-5 bg-slate-50 text-[10px] text-slate-400 font-bold italic border-t uppercase tracking-tighter leading-relaxed">
+                                        * Tiêu chí: Điểm > Hiệu số > Bàn thắng > Đối đầu > Penalty.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- THỂ LỆ QUY ĐỊNH -->
+                        <section class="mt-20 border-t-2 border-slate-200 pt-16">
+                            <div class="flex items-center space-x-3 mb-10">
+                                <div class="h-8 w-1.5 bg-teal-500 rounded-full"></div>
+                                <h2 class="text-2xl font-black text-slate-800 uppercase italic tracking-tight">Quy định giải đấu Kickoff 2026</h2>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                                    <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center mb-6"><i class="fas fa-trophy"></i></div>
+                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Thể thức chung</h3>
+                                    <ul class="text-xs text-slate-500 space-y-3 leading-relaxed">
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-teal-500 mt-0.5"></i> Đá vòng tròn một lượt tính điểm.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-teal-500 mt-0.5"></i> <b>Thời gian:</b> 2 hiệp x 10 phút.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-teal-500 mt-0.5"></i> <b>Tính điểm:</b> Thắng 3 | Hòa 1 | Thua 0.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-teal-500 mt-0.5"></i> <b>Trễ giờ:</b> Quá 5 phút xử thua 0-3.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                                    <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6"><i class="fas fa-users"></i></div>
+                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Luật Bóng Đá Nam</h3>
+                                    <ul class="text-xs text-slate-500 space-y-3 leading-relaxed">
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-blue-500 mt-0.5"></i> <b>Sân 7:</b> 7 chính thức + dự bị.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-blue-500 mt-0.5"></i> <b>Đá biên:</b> Thực hiện bằng chân.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-blue-500 mt-0.5"></i> <b>Thay người:</b> Không giới hạn.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-blue-500 mt-0.5"></i> <b>Việt vị:</b> Không áp dụng.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                                    <div class="w-12 h-12 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center mb-6"><i class="fas fa-star"></i></div>
+                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Luật Bóng Đá Nữ</h3>
+                                    <ul class="text-xs text-slate-500 space-y-3 leading-relaxed">
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-pink-500 mt-0.5"></i> <b>Sân 5:</b> 5 chính thức + dự bị.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-pink-500 mt-0.5"></i> <b>Đặc cách:</b> Hạn chế va chạm mạnh.</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-pink-500 mt-0.5"></i> <b>Thay người:</b> Tự do (trừ thủ môn).</li>
+                                        <li class="flex items-start"><i class="fas fa-check-circle mr-2 text-pink-500 mt-0.5"></i> <b>Đá biên:</b> Linh động.</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                                    <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-6"><i class="fas fa-exclamation-triangle"></i></div>
+                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Quy định Thẻ đỏ</h3>
+                                    <p class="text-[11px] text-slate-600 font-medium leading-relaxed">Khi nhận thẻ đỏ, đội thi đấu <b>thiếu người trong 3 phút</b>.</p>
+                                    <div class="mt-4 bg-slate-50 p-4 rounded-2xl border-l-4 border-red-500 text-[10px] text-slate-500 italic">
+                                        Sau 3 phút, đội được bổ sung người mới khi bóng chết.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- GIẢI THƯỞNG -->
+                            <div class="mt-8 bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden">
+                                <i class="fas fa-trophy absolute -bottom-10 -right-10 text-[15rem] opacity-5"></i>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                    <div><h4 class="text-teal-400 font-black text-xs uppercase tracking-widest mb-4">Giải Nhất</h4><p class="text-sm font-bold">Cờ + Tiền thưởng</p></div>
+                                    <div><h4 class="text-teal-400 font-black text-xs uppercase tracking-widest mb-4">Giải Nhì</h4><p class="text-sm font-bold">Cờ + Tiền thưởng</p></div>
+                                    <div><h4 class="text-teal-400 font-black text-xs uppercase tracking-widest mb-4">Giải Ba</h4><p class="text-sm font-bold">Cờ + Tiền thưởng</p></div>
+                                    <div><h4 class="text-teal-400 font-black text-xs uppercase tracking-widest mb-4">Cá nhân</h4><p class="text-sm font-bold">Vua phá lưới & Thủ môn XS</p></div>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+
+                    <!-- FOOTER -->
+                    <footer class="max-w-6xl mx-auto px-6 py-12 text-center opacity-40 grayscale hover:grayscale-0 transition-all">
+                        <div class="flex flex-col items-center">
+                            ${LogoVT()}
+                            <p class="mt-6 text-[9px] font-black text-slate-400 uppercase tracking-[0.5em]">VT Healthcare Kickoff 2026 • Official Scoreboard</p>
+                        </div>
+                    </footer>
+                </div>
+            `;
+        }
+
+        // --- RENDER ENGINE ---
+        function render() {
+            const root = document.getElementById('app');
+            if (step === 'setup') {
+                root.innerHTML = renderSetup();
+            } else {
+                root.innerHTML = renderTournament();
+            }
+        }
+
+        // Khởi tạo
+        render();
+
+    </script>
+</body>
+</html>
