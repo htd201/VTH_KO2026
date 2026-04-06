@@ -24,18 +24,33 @@
         let step = 'setup'; 
         let activeTab = 'mens'; 
 
+        // Tên đội mặc định theo nội dung mới
+        const DEFAULT_TEAM_NAMES = [
+            "Data Driven + Key Objectives",    // Team 1 - D
+            "Uplifting Service + Automation", // Team 2 - A
+            "Ownership + Leadership",         // Team 3 - C
+            "Hybrid Competence + Touchpoints" // Team 4 - B
+        ];
+
+        // Mảng mapping để dễ quản lý ID theo logic cũ (A, B, C, D)
+        // m1=D, m2=A, m3=C, m4=B
+        
         // Bóng đá Nam (Vòng tròn)
         let mensTeams = [
-            { id: 'm1', name: 'TEAM 1' }, { id: 'm2', name: 'TEAM 2' }, 
-            { id: 'm3', name: 'TEAM 3' }, { id: 'm4', name: 'TEAM 4' }
+            { id: 'mD', name: DEFAULT_TEAM_NAMES[0], short: 'D' },
+            { id: 'mA', name: DEFAULT_TEAM_NAMES[1], short: 'A' },
+            { id: 'mC', name: DEFAULT_TEAM_NAMES[2], short: 'C' },
+            { id: 'mB', name: DEFAULT_TEAM_NAMES[3], short: 'B' }
         ];
         let mensMatches = [];
         let mensPenalties = {};
 
         // Bóng đá Nữ (Loại trực tiếp)
         let womensTeams = [
-            { id: 'wA', name: 'TEAM A' }, { id: 'wB', name: 'TEAM B' }, 
-            { id: 'wC', name: 'TEAM C' }, { id: 'wD', name: 'TEAM D' }
+            { id: 'wD', name: DEFAULT_TEAM_NAMES[0], short: 'D' },
+            { id: 'wA', name: DEFAULT_TEAM_NAMES[1], short: 'A' },
+            { id: 'wC', name: DEFAULT_TEAM_NAMES[2], short: 'C' },
+            { id: 'wB', name: DEFAULT_TEAM_NAMES[3], short: 'B' }
         ];
         let womensMatches = [];
 
@@ -102,42 +117,35 @@
             const h3 = womensMatches.find(m => m.id === 'w_h3');
             const ck = womensMatches.find(m => m.id === 'w_ck');
 
-            // Cập nhật Chung kết và Hạng 3 từ Bán kết 1
             if (bk1.score1 !== null && bk1.score2 !== null) {
                 if (bk1.score1 > bk1.score2) {
                     ck.team1 = bk1.team1; h3.team1 = bk1.team2;
-                } else {
+                } else if (bk1.score1 < bk1.score2) {
                     ck.team1 = bk1.team2; h3.team1 = bk1.team1;
                 }
             }
-
-            // Cập nhật Chung kết và Hạng 3 từ Bán kết 2
             if (bk2.score1 !== null && bk2.score2 !== null) {
                 if (bk2.score1 > bk2.score2) {
                     ck.team2 = bk2.team1; h3.team2 = bk2.team2;
-                } else {
+                } else if (bk2.score1 < bk2.score2) {
                     ck.team2 = bk2.team2; h3.team2 = bk2.team1;
                 }
             }
         }
 
-        // --- HÀNH ĐỘNG (ACTIONS) ---
+        // --- HÀNH ĐỘNG ---
         function startTournament() {
-            if (mensTeams.some(t => t.name.trim() === '') || womensTeams.some(t => t.name.trim() === '')) {
-                alert("Vui lòng nhập đầy đủ tên các đội!"); return;
-            }
-            
-            // Khởi tạo lịch thi đấu Nam (Vòng tròn)
+            // Lịch Nam: Vòng tròn
             mensMatches = [
-                { id: `m_1`, round: 1, team1: `m1`, team2: `m2`, score1: null, score2: null, time: '14:00' },
-                { id: `m_2`, round: 1, team1: `m3`, team2: `m4`, score1: null, score2: null, time: '14:00' },
-                { id: `m_3`, round: 2, team1: `m1`, team2: `m3`, score1: null, score2: null, time: '15:00' },
-                { id: `m_4`, round: 2, team1: `m2`, team2: `m4`, score1: null, score2: null, time: '15:00' },
-                { id: `m_5`, round: 3, team1: `m1`, team2: `m4`, score1: null, score2: null, time: '16:00' },
-                { id: `m_6`, round: 3, team1: `m2`, team2: `m3`, score1: null, score2: null, time: '16:00' },
+                { id: `m_1`, round: 1, team1: `mD`, team2: `mA`, score1: null, score2: null, time: '14:00' },
+                { id: `m_2`, round: 1, team1: `mC`, team2: `mB`, score1: null, score2: null, time: '14:00' },
+                { id: `m_3`, round: 2, team1: `mD`, team2: `mC`, score1: null, score2: null, time: '15:00' },
+                { id: `m_4`, round: 2, team1: `mA`, team2: `mB`, score1: null, score2: null, time: '15:00' },
+                { id: `m_5`, round: 3, team1: `mD`, team2: `mB`, score1: null, score2: null, time: '16:00' },
+                { id: `m_6`, round: 3, team1: `mA`, team2: `mC`, score1: null, score2: null, time: '16:00' },
             ];
 
-            // Khởi tạo lịch thi đấu Nữ (Knockout theo sơ đồ: D-A và C-B)
+            // Lịch Nữ: D-A và C-B
             womensMatches = [
                 { id: 'w_bk1', label: 'Bán kết 1', team1: 'wD', team2: 'wA', score1: null, score2: null, type: 'bk' },
                 { id: 'w_bk2', label: 'Bán kết 2', team1: 'wC', team2: 'wB', score1: null, score2: null, type: 'bk' },
@@ -155,26 +163,14 @@
             if (match) {
                 if (teamIdx === 1) match.score1 = Math.max(0, (match.score1 ?? 0) + delta);
                 else match.score2 = Math.max(0, (match.score2 ?? 0) + delta);
-                
                 if (gender === 'womens') updateWomensKnockout();
             }
             render();
         }
 
-        function updatePenalty(gender, tieId, teamId, delta) {
-            if (gender === 'mens') {
-                if (!mensPenalties[tieId]) mensPenalties[tieId] = {};
-                mensPenalties[tieId][teamId] = Math.max(0, (mensPenalties[tieId][teamId] || 0) + delta);
-            }
-            render();
-        }
+        function switchTab(tab) { activeTab = tab; render(); }
 
-        function switchTab(tab) {
-            activeTab = tab;
-            render();
-        }
-
-        // --- COMPONENT TEMPLATES ---
+        // --- TEMPLATES ---
         const LogoVT = () => `
             <div class="flex items-center space-x-3">
                 <div class="bg-white p-2 rounded-xl shadow-sm">
@@ -184,7 +180,7 @@
                     </svg>
                 </div>
                 <div class="flex flex-col text-left">
-                    <span class="text-2xl font-black leading-none italic tracking-tight" style="color: ${THEME_COLOR}">VT healthcare</span>
+                    <span class="text-2xl font-black italic tracking-tight" style="color: ${THEME_COLOR}">VT healthcare</span>
                     <span class="text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase">Kickoff 2026 • League</span>
                 </div>
             </div>
@@ -195,32 +191,35 @@
                 <div class="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
                     ${LogoVT()}
                     <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-4xl border border-slate-100 mt-10">
-                        <h2 class="text-3xl font-black text-center text-slate-800 mb-10 uppercase tracking-tight italic">Thiết lập giải đấu</h2>
+                        <h2 class="text-3xl font-black text-center text-slate-800 mb-10 uppercase tracking-tight italic">Xác nhận danh sách đội</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div class="space-y-4">
                                 <div class="flex items-center space-x-2 text-blue-600 font-black uppercase text-xs border-b pb-3 tracking-widest">
                                     <i class="fas fa-mars"></i> <span>Bảng Nam (Vòng tròn)</span>
                                 </div>
                                 ${mensTeams.map((t, i) => `
-                                    <input type="text" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500 transition-all font-bold text-slate-700"
-                                        placeholder="Tên đội Nam ${i+1}" value="${t.name}" oninput="mensTeams[${i}].name = this.value">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-slate-300 font-black w-6 text-center">${t.short}</span>
+                                        <input type="text" class="flex-1 px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500 font-bold text-slate-700"
+                                            value="${t.name}" oninput="mensTeams[${i}].name = this.value">
+                                    </div>
                                 `).join('')}
                             </div>
                             <div class="space-y-4">
                                 <div class="flex items-center space-x-2 text-pink-600 font-black uppercase text-xs border-b pb-3 tracking-widest">
-                                    <i class="fas fa-venus"></i> <span>Bảng Nữ (Loại trực tiếp)</span>
+                                    <i class="fas fa-venus"></i> <span>Bảng Nữ (Trực tiếp)</span>
                                 </div>
                                 ${womensTeams.map((t, i) => `
                                     <div class="flex items-center space-x-2">
-                                        <span class="text-slate-300 font-black w-6">${t.id.replace('w','')}</span>
-                                        <input type="text" class="flex-1 px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500 transition-all font-bold text-slate-700"
-                                            placeholder="Tên đội Nữ ${t.id.replace('w','')}" value="${t.name}" oninput="womensTeams[${i}].name = this.value">
+                                        <span class="text-slate-300 font-black w-6 text-center">${t.short}</span>
+                                        <input type="text" class="flex-1 px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500 font-bold text-slate-700"
+                                            value="${t.name}" oninput="womensTeams[${i}].name = this.value">
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
                         <button onclick="startTournament()" class="w-full mt-12 text-white font-black text-xl py-6 rounded-[2rem] shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all uppercase tracking-[0.2em] theme-bg">
-                            Bắt đầu KICKOFF 2026
+                            Bắt đầu GIẢI ĐẤU
                         </button>
                     </div>
                 </div>
@@ -230,26 +229,21 @@
         function renderMatchCard(m, gender, teams) {
             const t1Obj = teams.find(t => t.id === m.team1);
             const t2Obj = teams.find(t => t.id === m.team2);
-            const t1Name = t1Obj ? t1Obj.name : '???';
-            const t2Name = t2Obj ? t2Obj.name : '???';
-
             return `
-                <div class="group bg-slate-50 p-6 rounded-3xl border border-transparent hover:border-teal-100 hover:bg-white hover:shadow-lg transition-all">
+                <div class="bg-slate-50 p-6 rounded-3xl border border-transparent hover:border-teal-100 hover:bg-white hover:shadow-lg transition-all">
                     <div class="text-[10px] font-black text-slate-400 mb-4 text-center uppercase tracking-widest">${m.label || m.time}</div>
                     <div class="flex items-center justify-between gap-4">
                         <div class="flex-1 flex flex-col items-center">
-                            <span class="text-sm font-black text-slate-700 text-center mb-3 h-10 flex items-center leading-tight uppercase tracking-tight">${t1Name}</span>
+                            <span class="text-[11px] font-black text-slate-700 text-center mb-3 h-10 flex items-center leading-tight uppercase tracking-tight">${t1Obj ? t1Obj.name : 'Chưa xác định'}</span>
                             <div class="flex items-center bg-white rounded-2xl border-2 border-slate-100 shadow-inner p-1">
                                 <button onclick="updateScore('${gender}', '${m.id}', 1, -1)" class="p-2 text-slate-300 hover:text-red-500"><i class="fas fa-minus text-xs"></i></button>
                                 <span class="w-12 text-center font-black text-3xl ${m.score1 !== null ? 'text-teal-600' : 'text-slate-200'}">${m.score1 ?? '-'}</span>
                                 <button onclick="updateScore('${gender}', '${m.id}', 1, 1)" class="p-2 text-slate-300 hover:text-teal-500"><i class="fas fa-plus text-xs"></i></button>
                             </div>
                         </div>
-                        <div class="px-4 flex flex-col items-center opacity-30">
-                            <div class="font-black italic text-xl">VS</div>
-                        </div>
+                        <div class="px-2 opacity-30 font-black italic text-xl">VS</div>
                         <div class="flex-1 flex flex-col items-center">
-                            <span class="text-sm font-black text-slate-700 text-center mb-3 h-10 flex items-center leading-tight uppercase tracking-tight">${t2Name}</span>
+                            <span class="text-[11px] font-black text-slate-700 text-center mb-3 h-10 flex items-center leading-tight uppercase tracking-tight">${t2Obj ? t2Obj.name : 'Chưa xác định'}</span>
                             <div class="flex items-center bg-white rounded-2xl border-2 border-slate-100 shadow-inner p-1">
                                 <button onclick="updateScore('${gender}', '${m.id}', 2, -1)" class="p-2 text-slate-300 hover:text-red-500"><i class="fas fa-minus text-xs"></i></button>
                                 <span class="w-12 text-center font-black text-3xl ${m.score2 !== null ? 'text-teal-600' : 'text-slate-200'}">${m.score2 ?? '-'}</span>
@@ -257,11 +251,7 @@
                             </div>
                         </div>
                     </div>
-                    ${gender === 'womens' && m.score1 !== null && m.score1 === m.score2 ? `
-                        <div class="mt-4 text-center text-[10px] font-bold text-orange-500 italic uppercase">
-                            Hòa? Vui lòng nhập tỉ số bao gồm cả Penalty (vd: 5-4)
-                        </div>
-                    ` : ''}
+                    ${gender === 'womens' && m.score1 !== null && m.score1 === m.score2 ? `<div class="mt-4 text-center text-[9px] font-bold text-orange-500 italic uppercase">Cần nhập tổng điểm bao gồm Penalty</div>` : ''}
                 </div>
             `;
         }
@@ -272,48 +262,15 @@
                     <div class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b">
                         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
                             ${LogoVT()}
-                            <div class="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full uppercase tracking-widest">
-                                ${activeTab === 'mens' ? 'Nội dung Nam - Sân 7' : 'Nội dung Nữ - Sân 5'}
-                            </div>
+                            <div class="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full uppercase tracking-widest">KICKOFF 2026 OFFICIAL</div>
                         </div>
                         <div class="max-w-6xl mx-auto flex px-6">
-                            <button onclick="switchTab('mens')" class="flex-1 py-4 text-xs font-black tracking-widest transition-all border-b-4 ${activeTab === 'mens' ? 'text-blue-600 border-blue-600' : 'text-slate-300 border-transparent hover:text-slate-500'}">NAM (VÒNG TRÒN)</button>
-                            <button onclick="switchTab('womens')" class="flex-1 py-4 text-xs font-black tracking-widest transition-all border-b-4 ${activeTab === 'womens' ? 'text-pink-600 border-pink-600' : 'text-slate-300 border-transparent hover:text-slate-500'}">NỮ (TRỰC TIẾP)</button>
+                            <button onclick="switchTab('mens')" class="flex-1 py-4 text-xs font-black transition-all border-b-4 ${activeTab === 'mens' ? 'text-blue-600 border-blue-600' : 'text-slate-300 border-transparent hover:text-slate-500 uppercase'}">BÓNG ĐÁ NAM</button>
+                            <button onclick="switchTab('womens')" class="flex-1 py-4 text-xs font-black transition-all border-b-4 ${activeTab === 'womens' ? 'text-pink-600 border-pink-600' : 'text-slate-300 border-transparent hover:text-slate-500 uppercase'}">BÓNG ĐÁ NỮ</button>
                         </div>
                     </div>
-
                     <main class="max-w-6xl mx-auto p-6">
                         ${activeTab === 'mens' ? renderMensContent() : renderWomensContent()}
-                        
-                        <!-- FOOTER REUSE -->
-                        <section class="mt-20 border-t-2 border-slate-200 pt-16">
-                            <div class="flex items-center space-x-3 mb-10">
-                                <div class="h-8 w-1.5 bg-teal-500 rounded-full"></div>
-                                <h2 class="text-2xl font-black text-slate-800 uppercase italic tracking-tight">Quy định giải đấu Kickoff 2026</h2>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                                    <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center mb-6"><i class="fas fa-trophy"></i></div>
-                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Thể thức Nam</h3>
-                                    <p class="text-xs text-slate-500 leading-relaxed italic">Đá vòng tròn tính điểm. Thắng 3, Hòa 1, Thua 0.</p>
-                                </div>
-                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                                    <div class="w-12 h-12 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center mb-6"><i class="fas fa-venus"></i></div>
-                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Thể thức Nữ</h3>
-                                    <p class="text-xs text-slate-500 leading-relaxed italic">Loại trực tiếp: Bán kết -> Chung kết & Hạng 3.</p>
-                                </div>
-                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                                    <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-6"><i class="fas fa-clock"></i></div>
-                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Thời gian</h3>
-                                    <p class="text-xs text-slate-500 leading-relaxed italic">2 hiệp x 10 phút. Nghỉ giữa hiệp 5 phút.</p>
-                                </div>
-                                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                                    <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-6"><i class="fas fa-exclamation-triangle"></i></div>
-                                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 mb-4">Kỷ luật</h3>
-                                    <p class="text-xs text-slate-500 leading-relaxed italic">Thẻ đỏ: Đội thiếu người trong 3 phút.</p>
-                                </div>
-                            </div>
-                        </section>
                     </main>
                 </div>
             `;
@@ -325,7 +282,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div class="lg:col-span-7 space-y-8">
                         <div class="bg-white rounded-[2.5rem] shadow-xl p-8 border border-white">
-                            <h2 class="text-2xl font-black mb-10 uppercase italic text-slate-800 tracking-tight">Vòng Tròn Tính Điểm</h2>
+                            <h2 class="text-2xl font-black mb-10 uppercase italic text-slate-800 tracking-tight">Lịch thi đấu Nam</h2>
                             <div class="space-y-12">
                                 ${[1, 2, 3].map(round => `
                                     <div class="relative pl-8 border-l-2 border-slate-100 ml-2">
@@ -340,28 +297,23 @@
                         </div>
                     </div>
                     <div class="lg:col-span-5 space-y-8">
-                        ${stats.allMatchesPlayed && stats.tieBreakers.length > 0 ? renderPenaltiesUI(stats.tieBreakers) : ''}
                         <div class="bg-white rounded-[2.5rem] shadow-2xl border border-white overflow-hidden">
-                            <div class="p-7 text-white font-black flex items-center justify-between bg-blue-600">
-                                <div class="flex items-center uppercase tracking-tight text-lg"><i class="fas fa-trophy mr-3"></i> Bảng xếp hạng</div>
-                            </div>
-                            <table class="w-full text-[11px]">
+                            <div class="p-7 text-white font-black flex items-center justify-between bg-blue-600 uppercase">Bảng xếp hạng Nam</div>
+                            <table class="w-full text-[10px]">
                                 <tr class="bg-slate-50 text-slate-400 font-black uppercase border-b">
-                                    <th class="px-3 py-6 w-14">Hạng</th>
-                                    <th class="px-2 py-6 text-left">Đội bóng</th>
-                                    <th class="px-2 py-6 w-10">BT/HS</th>
-                                    <th class="px-4 py-6 text-slate-800 w-14">ĐIỂM</th>
+                                    <th class="px-3 py-6 w-12 text-center">Hạng</th>
+                                    <th class="px-2 py-6 text-left">Đội</th>
+                                    <th class="px-2 py-6 w-14 text-center">BT/HS</th>
+                                    <th class="px-4 py-6 text-slate-800 w-14 text-center">ĐIỂM</th>
                                 </tr>
                                 ${stats.standings.map((team, idx) => `
                                     <tr class="border-b ${idx === 0 ? 'bg-yellow-50/40' : ''}">
                                         <td class="px-3 py-6 text-center font-black">${idx + 1}</td>
-                                        <td class="px-2 py-6">
-                                            <div class="flex flex-col">
-                                                <span class="font-black text-slate-800 uppercase">${team.name}</span>
-                                                <span class="text-[8px] text-slate-400">T-H-B: ${team.w}-${team.d}-${team.l}</span>
-                                            </div>
+                                        <td class="px-2 py-6 font-black uppercase text-slate-800 leading-tight">
+                                            <div class="text-[11px]">${team.name}</div>
+                                            <div class="text-[8px] opacity-30 mt-0.5">Team ${team.short}</div>
                                         </td>
-                                        <td class="px-2 py-6 text-center font-bold text-slate-600">${team.gf} / ${team.gd > 0 ? '+' + team.gd : team.gd}</td>
+                                        <td class="px-2 py-6 text-center font-bold text-slate-600">${team.gf}/${team.gd}</td>
                                         <td class="px-4 py-6 text-center font-black text-lg">${team.pts}</td>
                                     </tr>
                                 `).join('')}
@@ -372,78 +324,33 @@
             `;
         }
 
-        function renderPenaltiesUI(ties) {
-            return `
-                <div class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-[2.5rem] p-8 shadow-xl text-white">
-                    <h2 class="text-xl font-black mb-6 uppercase italic"><i class="fas fa-bullseye mr-2"></i> PHÂN ĐỊNH PENALTY</h2>
-                    ${ties.map(tie => `
-                        <div class="bg-black/10 p-6 rounded-3xl mb-4">
-                            <div class="flex justify-between items-center text-center">
-                                <div class="flex-1">
-                                    <div class="text-[10px] font-black uppercase mb-2">${tie.team1.name}</div>
-                                    <div class="flex items-center justify-center space-x-2">
-                                        <button onclick="updatePenalty('mens', '${tie.id}', '${tie.team1.id}', -1)" class="w-6 h-6 rounded-full bg-white/20">-</button>
-                                        <span class="text-2xl font-black">${mensPenalties[tie.id]?.[tie.team1.id] || 0}</span>
-                                        <button onclick="updatePenalty('mens', '${tie.id}', '${tie.team1.id}', 1)" class="w-6 h-6 rounded-full bg-white/20">+</button>
-                                    </div>
-                                </div>
-                                <div class="px-4 opacity-40 font-black italic">VS</div>
-                                <div class="flex-1">
-                                    <div class="text-[10px] font-black uppercase mb-2">${tie.team2.name}</div>
-                                    <div class="flex items-center justify-center space-x-2">
-                                        <button onclick="updatePenalty('mens', '${tie.id}', '${tie.team2.id}', -1)" class="w-6 h-6 rounded-full bg-white/20">-</button>
-                                        <span class="text-2xl font-black">${mensPenalties[tie.id]?.[tie.team2.id] || 0}</span>
-                                        <button onclick="updatePenalty('mens', '${tie.id}', '${tie.team2.id}', 1)" class="w-6 h-6 rounded-full bg-white/20">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
         function renderWomensContent() {
             const bkMatches = womensMatches.filter(m => m.type === 'bk');
-            const finalMatches = womensMatches.filter(m => m.type === 'final');
-            
             return `
                 <div class="space-y-10">
-                    <!-- BÁN KẾT -->
                     <div class="bg-white rounded-[2.5rem] shadow-xl p-8 border border-white">
-                        <div class="flex items-center justify-between mb-10">
-                            <h2 class="text-2xl font-black uppercase italic text-slate-800 tracking-tight">
-                                <i class="fas fa-sitemap mr-3 text-pink-500"></i> Vòng Bán Kết (Sân 3)
-                            </h2>
-                            <span class="text-[10px] font-bold text-pink-500 bg-pink-50 px-3 py-1.5 rounded-full uppercase tracking-widest">Sơ đồ: D-A & C-B</span>
-                        </div>
+                        <h2 class="text-2xl font-black uppercase italic text-slate-800 mb-10 tracking-tight">Vòng Bán Kết</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             ${bkMatches.map(m => renderMatchCard(m, 'womens', womensTeams)).join('')}
                         </div>
                     </div>
-
-                    <!-- CHUNG KẾT & HẠNG 3 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-gradient-to-br from-pink-500 to-rose-600 rounded-[2.5rem] shadow-xl p-8 text-white relative overflow-hidden">
-                            <i class="fas fa-crown absolute -bottom-10 -right-10 text-[12rem] opacity-10 rotate-12"></i>
-                            <h2 class="text-2xl font-black uppercase italic mb-8 relative z-10">Trận Chung Kết</h2>
+                        <div class="bg-gradient-to-br from-pink-500 to-rose-600 rounded-[2.5rem] shadow-xl p-8 text-white">
+                            <h2 class="text-2xl font-black uppercase italic mb-8">Chung Kết</h2>
                             ${renderMatchCard(womensMatches.find(m => m.id === 'w_ck'), 'womens', womensTeams)}
                         </div>
-                        <div class="bg-slate-800 rounded-[2.5rem] shadow-xl p-8 text-white relative overflow-hidden">
-                            <i class="fas fa-medal absolute -bottom-10 -right-10 text-[12rem] opacity-10 -rotate-12"></i>
-                            <h2 class="text-2xl font-black uppercase italic mb-8 relative z-10">Tranh Hạng Ba</h2>
+                        <div class="bg-slate-800 rounded-[2.5rem] shadow-xl p-8 text-white">
+                            <h2 class="text-2xl font-black uppercase italic mb-8">Tranh Hạng 3</h2>
                             ${renderMatchCard(womensMatches.find(m => m.id === 'w_h3'), 'womens', womensTeams)}
                         </div>
                     </div>
-
-                    <!-- THỨ HẠNG CUỐI CÙNG (DỰA TRÊN KẾT QUẢ) -->
-                    <div class="bg-white rounded-[2.5rem] shadow-lg p-8 border border-slate-100">
-                        <h2 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 italic">Thứ hạng dự kiến</h2>
-                        <div class="flex flex-wrap gap-4">
+                    <div class="bg-white rounded-[2.5rem] shadow-lg p-8">
+                        <h2 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 italic">Kết quả chung cuộc Nữ</h2>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             ${getFinalWomensRank().map((r, i) => `
-                                <div class="flex-1 min-w-[150px] p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                                    <div class="text-[10px] font-black text-slate-400 uppercase mb-1">${i === 0 ? 'Hạng 1' : i === 1 ? 'Hạng 2' : i === 2 ? 'Hạng 3' : 'Hạng 4'}</div>
-                                    <div class="font-black text-slate-800 truncate">${r ? r.name : '...'}</div>
+                                <div class="p-5 rounded-3xl bg-slate-50 border border-slate-100 flex flex-col items-center">
+                                    <div class="text-[10px] font-black text-slate-400 uppercase mb-2">Hạng ${i+1}</div>
+                                    <div class="font-black text-slate-800 text-center uppercase text-[10px] leading-tight">${r ? r.name : '---'}</div>
                                 </div>
                             `).join('')}
                         </div>
@@ -456,35 +363,21 @@
             const ck = womensMatches.find(m => m.id === 'w_ck');
             const h3 = womensMatches.find(m => m.id === 'w_h3');
             let ranks = [null, null, null, null];
-
             if (ck.score1 !== null && ck.score2 !== null) {
-                if (ck.score1 > ck.score2) {
-                    ranks[0] = womensTeams.find(t => t.id === ck.team1);
-                    ranks[1] = womensTeams.find(t => t.id === ck.team2);
-                } else {
-                    ranks[0] = womensTeams.find(t => t.id === ck.team2);
-                    ranks[1] = womensTeams.find(t => t.id === ck.team1);
-                }
+                ranks[0] = womensTeams.find(t => t.id === (ck.score1 > ck.score2 ? ck.team1 : ck.team2));
+                ranks[1] = womensTeams.find(t => t.id === (ck.score1 > ck.score2 ? ck.team2 : ck.team1));
             }
             if (h3.score1 !== null && h3.score2 !== null) {
-                if (h3.score1 > h3.score2) {
-                    ranks[2] = womensTeams.find(t => t.id === h3.team1);
-                    ranks[3] = womensTeams.find(t => t.id === h3.team2);
-                } else {
-                    ranks[2] = womensTeams.find(t => t.id === h3.team2);
-                    ranks[3] = womensTeams.find(t => t.id === h3.team1);
-                }
+                ranks[2] = womensTeams.find(t => t.id === (h3.score1 > h3.score2 ? h3.team1 : h3.team2));
+                ranks[3] = womensTeams.find(t => t.id === (h3.score1 > h3.score2 ? h3.team2 : h3.team1));
             }
             return ranks;
         }
 
-        // --- RENDER ENGINE ---
         function render() {
             const root = document.getElementById('app');
-            if (step === 'setup') root.innerHTML = renderSetup();
-            else root.innerHTML = renderTournament();
+            root.innerHTML = step === 'setup' ? renderSetup() : renderTournament();
         }
-
         render();
     </script>
 </body>
