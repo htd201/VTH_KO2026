@@ -3,48 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VT Healthcare Badminton - Tournament Manager 2026</title>
+    <title>VT Healthcare Badminton - Round Robin 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&display=swap');
-        
-        :root {
-            --vt-primary: #26b1a5; 
-            --vt-dark: #1e8e84;
-            --vt-bg: #fdfdfd;
-        }
-        
-        body {
-            background-color: var(--vt-bg);
-            font-family: 'Lexend', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        :root { --vt-primary: #26b1a5; --vt-dark: #1e8e84; --vt-bg: #fdfdfd; }
+        body { background-color: var(--vt-bg); font-family: 'Lexend', sans-serif; -webkit-tap-highlight-color: transparent; }
         .bg-vt { background-color: var(--vt-primary); }
         .text-vt { color: var(--vt-primary); }
-        
-        .tab-active {
-            background-color: white;
-            color: var(--vt-primary);
-            box-shadow: 0 10px 15px -3px rgba(38, 177, 165, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .court-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .tab-active { background-color: white; color: var(--vt-primary); box-shadow: 0 10px 15px -3px rgba(38, 177, 165, 0.2); transform: translateY(-1px); }
+        .court-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeIn 0.4s ease-out forwards; }
-        
-        input:read-only {
-            color: #94a3b8;
-            cursor: not-allowed;
-        }
-
         .podium-1 { background: linear-gradient(135deg, #ffd700, #ffae00); }
         .podium-2 { background: linear-gradient(135deg, #c0c0c0, #95a5a6); }
         .podium-3 { background: linear-gradient(135deg, #cd7f32, #a0522d); }
@@ -62,8 +32,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h1 class="font-extrabold text-xl leading-none tracking-tight">VT OLYMPIC</h1>
-                        <p class="text-[11px] opacity-90 font-medium uppercase tracking-[0.2em] mt-1">Badminton Kickoff 2026</p>
+                        <h1 class="font-extrabold text-xl leading-none tracking-tight uppercase">VT OLYMPIC 2026</h1>
+                        <p class="text-[10px] opacity-90 font-medium uppercase tracking-[0.2em] mt-1 italic">Vòng Tròn Tính Điểm</p>
                     </div>
                 </div>
                 <button onclick="resetTournament()" class="bg-white/10 hover:bg-white/20 p-3 rounded-2xl transition-all">
@@ -71,64 +41,56 @@
                 </button>
             </div>
             <div class="max-w-6xl mx-auto px-6 pb-6 overflow-x-auto">
-                <div class="flex bg-black/10 p-1.5 rounded-[1.5rem] gap-1.5 backdrop-blur-sm min-w-[400px]">
-                    <button onclick="switchTab('tu-ket')" id="tab-tu-ket" class="flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all tab-active uppercase tracking-wider">Tứ Kết</button>
-                    <button onclick="switchTab('ban-ket')" id="tab-ban-ket" class="flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all text-white/70 uppercase tracking-wider">Bán Kết</button>
-                    <button onclick="switchTab('chung-ket')" id="tab-chung-ket" class="flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all text-white/70 uppercase tracking-wider">Chung Kết</button>
-                    <button onclick="switchTab('bxh')" id="tab-bxh" class="flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all text-white/70 uppercase tracking-wider">BXH 🏆</button>
+                <div class="flex bg-black/10 p-1.5 rounded-[1.5rem] gap-1.5 backdrop-blur-sm min-w-[500px]">
+                    <button onclick="switchTab('matches')" id="tab-matches" class="flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all tab-active uppercase tracking-wider">Lịch Thi Đấu</button>
+                    <button onclick="switchTab('bxh')" id="tab-bxh" class="flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all text-white/70 uppercase tracking-wider">Bảng Xếp Hạng 🏆</button>
                 </div>
             </div>
         </header>
 
         <main class="max-w-6xl mx-auto px-6 mt-8">
-            <div id="round-selector" class="mb-8 flex justify-center gap-3">
-                <button onclick="switchRound(1)" id="btn-round-1" class="px-6 py-2 rounded-full text-xs font-bold border border-vt transition-all">Lượt 1 (Trận 1-2)</button>
-                <button onclick="switchRound(2)" id="btn-round-2" class="px-6 py-2 rounded-full text-xs font-bold border border-vt transition-all">Lượt 2 (Trận 3-4)</button>
-            </div>
-
-            <div class="mb-8 text-center animate-fade">
-                <h2 id="phase-title" class="text-3xl font-extrabold text-slate-800 tracking-tight mb-1">Vòng Tứ Kết</h2>
-                <div class="flex items-center justify-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-vt animate-pulse"></span>
-                    <p id="round-subtitle" class="text-slate-400 text-[13px] font-medium tracking-wide uppercase">Tự động khóa tên đội thắng/thua vào vòng sau</p>
+            <div id="match-section" class="animate-fade">
+                <div id="round-selector" class="mb-8 flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
+                    <!-- Lượt 1 đến 6 -->
                 </div>
+
+                <div class="mb-8 text-center">
+                    <h2 id="round-title" class="text-2xl font-extrabold text-slate-800 tracking-tight">Lượt Thi Đấu 1</h2>
+                    <p class="text-slate-400 text-[12px] font-medium uppercase mt-1">3 nội dung chạy song song</p>
+                </div>
+
+                <div id="court-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
             </div>
 
-            <div id="court-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-
-            <div id="bxh-container" class="hidden animate-fade">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="bxh-content"></div>
+            <div id="bxh-section" class="hidden animate-fade">
+                <div class="mb-8 text-center">
+                    <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Kết Quả Chung Cuộc</h2>
+                    <p class="text-slate-400 text-[12px] font-medium uppercase mt-1">Tổng điểm = (Tổng Set Thắng) x 3</p>
+                </div>
+                <div id="bxh-content" class="max-w-3xl mx-auto space-y-4"></div>
             </div>
 
-            <!-- Thể lệ giải đấu -->
+            <!-- Thể lệ -->
             <section class="mt-16 pt-12 border-t border-slate-100 mb-12">
-                <div class="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-slate-100">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-800">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <div class="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight mb-6 flex items-center gap-3">
+                        <span class="w-8 h-8 bg-vt/10 rounded-lg flex items-center justify-center text-vt">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </span>
+                        Thể lệ mới Kickoff 2026
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-600 text-sm">
+                        <div class="bg-slate-50 p-5 rounded-3xl">
+                            <p class="font-bold text-slate-800 mb-2">Trận đấu</p>
+                            3 hiệp cố định mỗi trận. Mỗi hiệp đánh đến <span class="text-vt font-bold">15 điểm</span>.
                         </div>
-                        <h3 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Thể lệ giải đấu VT Olympic 2026</h3>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-slate-600">
-                        <div class="space-y-4">
-                            <div class="flex gap-4">
-                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-vt/10 text-vt flex items-center justify-center font-bold text-xs">01</span>
-                                <p class="text-sm leading-relaxed"><span class="font-bold text-slate-800">Hình thức:</span> Thi đấu loại trực tiếp. Chia làm 3 nội dung: Đôi Nam, Đôi Nữ và Đôi Nam-Nữ.</p>
-                            </div>
-                            <div class="flex gap-4">
-                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-vt/10 text-vt flex items-center justify-center font-bold text-xs">02</span>
-                                <p class="text-sm leading-relaxed"><span class="font-bold text-slate-800">Số hiệp:</span> Mỗi trận đấu gồm tối đa 3 hiệp (Best of 3). Đội thắng 2 hiệp trước sẽ thắng chung cuộc.</p>
-                            </div>
+                        <div class="bg-slate-50 p-5 rounded-3xl">
+                            <p class="font-bold text-slate-800 mb-2">Cách tính điểm</p>
+                            Mỗi hiệp (set) thắng = <span class="text-vt font-bold">3 điểm</span>. Tổng điểm = Tổng set thắng x 3.
                         </div>
-                        <div class="space-y-4">
-                            <div class="flex gap-4">
-                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-vt/10 text-vt flex items-center justify-center font-bold text-xs">03</span>
-                                <p class="text-sm leading-relaxed"><span class="font-bold text-slate-800">Cách tính điểm:</span> Chạm điểm 21 mỗi hiệp (Rally point). Nếu hòa 20-20, đội cách 2 điểm trước thắng (tối đa 30).</p>
-                            </div>
-                            <div class="flex gap-4">
-                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-vt/10 text-vt flex items-center justify-center font-bold text-xs">04</span>
-                                <p class="text-sm leading-relaxed"><span class="font-bold text-slate-800">Phân hạng:</span> Đội thắng Bán kết vào Chung kết tranh Nhất-Nhì. Đội thua Bán kết tranh hạng Ba.</p>
-                            </div>
+                        <div class="bg-slate-50 p-5 rounded-3xl">
+                            <p class="font-bold text-slate-800 mb-2">Luật 14-14</p>
+                            Đánh cách 2 điểm hoặc đội nào chạm <span class="text-vt font-bold">20 điểm</span> trước thắng.
                         </div>
                     </div>
                 </div>
@@ -136,169 +98,184 @@
         </main>
     </div>
 
-    <!-- Modal -->
-    <div id="history-modal" class="fixed inset-0 bg-slate-900/80 z-[100] hidden items-center justify-center p-6 backdrop-blur-md">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl scale-95 transition-transform duration-200">
-            <h3 class="text-xl font-extrabold text-slate-800 text-center mb-6">Xác nhận hiệp đấu</h3>
+    <!-- Modal Score -->
+    <div id="score-modal" class="fixed inset-0 bg-slate-900/80 z-[100] hidden items-center justify-center p-6 backdrop-blur-md">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+            <h3 class="text-xl font-extrabold text-slate-800 text-center mb-6">Kết quả Hiệp <span id="modal-set-num">1</span></h3>
             <div class="flex justify-around items-center bg-slate-50 p-6 rounded-3xl mb-8">
                 <div class="text-center flex-1">
-                    <div id="modal-team-a" class="text-[10px] font-bold text-slate-400 mb-1 uppercase truncate"></div>
+                    <div id="modal-team-a" class="text-[10px] font-bold text-slate-400 mb-1 uppercase truncate">Team A</div>
                     <div id="modal-score-a" class="text-4xl font-black text-vt">0</div>
                 </div>
                 <div class="text-slate-300 font-black italic text-sm">VS</div>
                 <div class="text-center flex-1">
-                    <div id="modal-team-b" class="text-[10px] font-bold text-slate-400 mb-1 uppercase truncate"></div>
+                    <div id="modal-team-b" class="text-[10px] font-bold text-slate-400 mb-1 uppercase truncate">Team B</div>
                     <div id="modal-score-b" class="text-4xl font-black text-slate-800">0</div>
                 </div>
             </div>
             <div class="flex gap-4">
                 <button onclick="closeModal()" class="flex-1 py-4 text-sm font-bold text-slate-400 bg-slate-100 rounded-2xl">Hủy</button>
-                <button id="confirm-finish-btn" class="flex-1 py-4 text-sm font-bold text-white bg-vt rounded-2xl">Xác nhận</button>
+                <button id="confirm-set-btn" class="flex-1 py-4 text-sm font-bold text-white bg-vt rounded-2xl shadow-lg shadow-vt/30">Xác nhận</button>
             </div>
         </div>
     </div>
-    
+
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-8 py-4 rounded-3xl text-xs font-bold shadow-2xl opacity-0 translate-y-10 transition-all z-[110] pointer-events-none"></div>
 
     <script>
-        let currentTab = 'tu-ket';
-        let currentRound = 1;
-        // v12: Adding Rankings and Rules
-        let db = JSON.parse(localStorage.getItem('vt_badminton_db_v12')) || null;
-
-        const matchTemplates = {
-            'tu-ket': {
-                1: [
-                    { id: 'tk1_1', label: 'NAM TK1', court: 'Sân 1', next: { id: 'bk1', slot: 'A' } },
-                    { id: 'tk2_1', label: 'NAM TK2', court: 'Sân 2', next: { id: 'bk1', slot: 'B' } },
-                    { id: 'tk3_1', label: 'NỮ TK1', court: 'Sân 3', next: { id: 'bk3', slot: 'A' } },
-                    { id: 'tk4_1', label: 'NỮ TK2', court: 'Sân 4', next: { id: 'bk3', slot: 'B' } },
-                    { id: 'tk5_1', label: 'NAM-NỮ TK1', court: 'Sân 5', next: { id: 'bk5', slot: 'A' } },
-                    { id: 'tk6_1', label: 'NAM-NỮ TK2', court: 'Sân 6', next: { id: 'bk5', slot: 'B' } },
-                ],
-                2: [
-                    { id: 'tk1_2', label: 'NAM TK3', court: 'Sân 1', next: { id: 'bk2', slot: 'A' } },
-                    { id: 'tk2_2', label: 'NAM TK4', court: 'Sân 2', next: { id: 'bk2', slot: 'B' } },
-                    { id: 'tk3_2', label: 'NỮ TK3', court: 'Sân 3', next: { id: 'bk4', slot: 'A' } },
-                    { id: 'tk4_2', label: 'NỮ TK4', court: 'Sân 4', next: { id: 'bk4', slot: 'B' } },
-                    { id: 'tk5_2', label: 'NAM-NỮ TK3', court: 'Sân 5', next: { id: 'bk6', slot: 'A' } },
-                    { id: 'tk6_2', label: 'NAM-NỮ TK4', court: 'Sân 6', next: { id: 'bk6', slot: 'B' } },
-                ]
-            },
-            'ban-ket': {
-                1: [
-                    { id: 'bk1', label: 'NAM BK1', court: 'Sân 1', nextWinner: { id: 'ck1', slot: 'A' }, nextLoser: { id: 'ck2', slot: 'A' } },
-                    { id: 'bk2', label: 'NAM BK2', court: 'Sân 2', nextWinner: { id: 'ck1', slot: 'B' }, nextLoser: { id: 'ck2', slot: 'B' } },
-                    { id: 'bk3', label: 'NỮ BK1', court: 'Sân 3', nextWinner: { id: 'ck3', slot: 'A' }, nextLoser: { id: 'ck4', slot: 'A' } },
-                    { id: 'bk4', label: 'NỮ BK2', court: 'Sân 4', nextWinner: { id: 'ck3', slot: 'B' }, nextLoser: { id: 'ck4', slot: 'B' } },
-                    { id: 'bk5', label: 'NAM-NỮ BK1', court: 'Sân 5', nextWinner: { id: 'ck5', slot: 'A' }, nextLoser: { id: 'ck6', slot: 'A' } },
-                    { id: 'bk6', label: 'NAM-NỮ BK2', court: 'Sân 6', nextWinner: { id: 'ck5', slot: 'B' }, nextLoser: { id: 'ck6', slot: 'B' } },
-                ]
-            },
-            'chung-ket': {
-                1: [
-                    { id: 'ck1', label: 'CHUNG KẾT NAM', court: 'Sân 1' }, { id: 'ck2', label: 'HẠNG 3 NAM', court: 'Sân 2' },
-                    { id: 'ck3', label: 'CHUNG KẾT NỮ', court: 'Sân 3' }, { id: 'ck4', label: 'HẠNG 3 NỮ', court: 'Sân 4' },
-                    { id: 'ck5', label: 'CHUNG KẾT N-NỮ', court: 'Sân 5' }, { id: 'ck6', label: 'HẠNG 3 N-NỮ', court: 'Sân 6' },
-                ]
-            }
+        // Cấu hình đội từ bốc thăm
+        const teamsInfo = {
+            'A': 'TEAM A (Uplifting Service + Automation)',
+            'B': 'TEAM B (Hybrid Competence + Touchpoints)',
+            'C': 'TEAM C (Ownership + Leadership)',
+            'D': 'TEAM D (Data Driven + Key Objectives)'
         };
 
+        // Lịch thi đấu từ Word
+        const schedule = [
+            { round: 1, time: '08:30-09:00', matches: [
+                { court: 'S1', category: 'Nam', tA: 'D', tB: 'A' },
+                { court: 'S2', category: 'Nữ', tA: 'C', tB: 'B' },
+                { court: 'S3', category: 'Nam Nữ', tA: 'D', tB: 'A' }
+            ]},
+            { round: 2, time: '09:00-09:30', matches: [
+                { court: 'S1', category: 'Nam', tA: 'C', tB: 'B' },
+                { court: 'S2', category: 'Nữ', tA: 'D', tB: 'A' },
+                { court: 'S3', category: 'Nam Nữ', tA: 'C', tB: 'B' }
+            ]},
+            { round: 3, time: '09:30-10:00', matches: [
+                { court: 'S1', category: 'Nam', tA: 'D', tB: 'C' },
+                { court: 'S2', category: 'Nữ', tA: 'A', tB: 'B' },
+                { court: 'S3', category: 'Nam Nữ', tA: 'D', tB: 'B' }
+            ]},
+            { round: 4, time: '10:00-10:30', matches: [
+                { court: 'S1', category: 'Nam', tA: 'A', tB: 'B' },
+                { court: 'S2', category: 'Nữ', tA: 'D', tB: 'C' },
+                { court: 'S3', category: 'Nam Nữ', tA: 'A', tB: 'C' }
+            ]},
+            { round: 5, time: '10:30-11:00', matches: [
+                { court: 'S1', category: 'Nam', tA: 'D', tB: 'B' },
+                { court: 'S2', category: 'Nữ', tA: 'A', tB: 'C' },
+                { court: 'S3', category: 'Nam Nữ', tA: 'D', tB: 'C' }
+            ]},
+            { round: 6, time: '11:00-11:30', matches: [
+                { court: 'S1', category: 'Nam', tA: 'A', tB: 'C' },
+                { court: 'S2', category: 'Nữ', tA: 'D', tB: 'B' },
+                { court: 'S3', category: 'Nam Nữ', tA: 'A', tB: 'B' }
+            ]}
+        ];
+
+        let currentTab = 'matches';
+        let currentRound = 1;
+        let db = JSON.parse(localStorage.getItem('vt_badminton_2026_rr')) || null;
+
         function initDB() {
-            db = { 'tu-ket': {}, 'ban-ket': {}, 'chung-ket': {} };
-            [1, 2].forEach(r => {
-                db['tu-ket'][r] = {};
-                matchTemplates['tu-ket'][r].forEach(m => {
-                    db['tu-ket'][r][m.id] = { teamA: '', teamB: '', isFixedA: false, isFixedB: false, currentSet: 1, liveScore: { a: 0, b: 0 }, sets: [], finished: false, winner: '' };
-                });
-            });
-            ['ban-ket', 'chung-ket'].forEach(p => {
-                db[p][1] = {};
-                matchTemplates[p][1].forEach(m => {
-                    db[p][1][m.id] = { teamA: '', teamB: '', isFixedA: false, isFixedB: false, currentSet: 1, liveScore: { a: 0, b: 0 }, sets: [], finished: false, winner: '' };
+            db = { matches: {} };
+            schedule.forEach(r => {
+                r.matches.forEach(m => {
+                    const id = `r${r.round}_${m.court}`;
+                    db.matches[id] = {
+                        round: r.round,
+                        court: m.court,
+                        category: m.category,
+                        tA: m.tA,
+                        tB: m.tB,
+                        sets: [], // [{a: 15, b: 10}, ...] tối đa 3 hiệp
+                        liveScore: { a: 0, b: 0 },
+                        finished: false
+                    };
                 });
             });
             saveDB();
-            renderMatches();
+            renderAll();
         }
 
-        function saveDB() { localStorage.setItem('vt_badminton_db_v12', JSON.stringify(db)); }
+        function saveDB() { localStorage.setItem('vt_badminton_2026_rr', JSON.stringify(db)); }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.getElementById('tab-matches').className = `flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all ${tabId === 'matches' ? 'tab-active' : 'text-white/70'}`;
+            document.getElementById('tab-bxh').className = `flex-1 py-3 text-[10px] font-extrabold rounded-xl transition-all ${tabId === 'bxh' ? 'tab-active' : 'text-white/70'}`;
+            
+            document.getElementById('match-section').classList.toggle('hidden', tabId !== 'matches');
+            document.getElementById('bxh-section').classList.toggle('hidden', tabId !== 'bxh');
+            
+            if(tabId === 'bxh') renderBXH();
+            else renderMatches();
+        }
+
+        function renderRoundSelector() {
+            const selector = document.getElementById('round-selector');
+            selector.innerHTML = '';
+            schedule.forEach(r => {
+                const btn = document.createElement('button');
+                const isActive = currentRound === r.round;
+                btn.className = `flex-shrink-0 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-vt transition-all ${isActive ? 'bg-vt text-white' : 'bg-white text-vt'}`;
+                btn.innerText = `Lượt ${r.round}`;
+                btn.onclick = () => { currentRound = r.round; renderRoundSelector(); renderMatches(); };
+                selector.appendChild(btn);
+            });
+        }
 
         function renderMatches() {
             const grid = document.getElementById('court-grid');
-            const bxhCont = document.getElementById('bxh-container');
-            if (currentTab === 'bxh') {
-                grid.classList.add('hidden');
-                bxhCont.classList.remove('hidden');
-                renderBXH();
-                return;
-            }
-            grid.classList.remove('hidden');
-            bxhCont.classList.add('hidden');
-            
+            document.getElementById('round-title').innerText = `Lượt Thi Đấu ${currentRound} (${schedule[currentRound-1].time})`;
             grid.innerHTML = '';
-            const activeTemplates = matchTemplates[currentTab][currentRound];
-            const activeData = db[currentTab][currentRound];
 
-            activeTemplates.forEach(m => {
-                const data = activeData[m.id];
+            const roundMatches = Object.values(db.matches).filter(m => m.round === currentRound);
+            
+            roundMatches.forEach(m => {
+                const id = `r${m.round}_${m.court}`;
                 const card = document.createElement('div');
-                card.className = `court-card bg-white rounded-[2rem] border border-slate-100 overflow-hidden flex flex-col ${data.finished ? 'opacity-90 bg-slate-50 border-vt/30' : 'shadow-sm'}`;
+                card.className = `court-card bg-white rounded-[2rem] border border-slate-100 overflow-hidden flex flex-col ${m.finished ? 'bg-slate-50/50 grayscale-[0.3]' : 'shadow-sm'}`;
                 
                 let setsHtml = '';
                 for(let i=0; i<3; i++) {
-                    const set = data.sets[i];
-                    const isCur = !data.finished && (data.currentSet === i + 1);
+                    const set = m.sets[i];
+                    const isCur = !m.finished && (m.sets.length === i);
                     setsHtml += `
                         <div class="flex flex-col items-center">
                             <span class="text-[7px] font-bold text-slate-300 mb-1">H${i+1}</span>
-                            <div class="w-8 h-9 rounded-lg ${set ? 'bg-vt text-white' : isCur ? 'bg-white border border-vt border-dashed' : 'bg-slate-50'} flex flex-col items-center justify-center">
+                            <div class="w-8 h-9 rounded-lg ${set ? 'bg-vt text-white' : isCur ? 'bg-white border border-vt border-dashed animate-pulse' : 'bg-slate-50'} flex flex-col items-center justify-center">
                                 ${set ? `<span class="text-[9px] font-black">${set.a}</span><span class="text-[9px] font-black">${set.b}</span>` : ''}
                             </div>
                         </div>`;
                 }
 
                 card.innerHTML = `
-                    <div class="px-5 py-3 bg-slate-50/50 flex justify-between items-center border-b border-slate-50">
+                    <div class="px-5 py-4 bg-slate-50/50 flex justify-between items-center border-b border-slate-50">
                         <div>
-                            <span class="text-[8px] font-black text-vt tracking-widest uppercase">${m.court}</span>
-                            <h4 class="text-[12px] font-extrabold text-slate-800">${m.label}</h4>
+                            <span class="text-[8px] font-black text-vt tracking-widest uppercase">${m.court} - Đôi ${m.category}</span>
+                            <h4 class="text-[12px] font-extrabold text-slate-800">Match #${m.round}</h4>
                         </div>
-                        <div class="flex gap-1">${setsHtml}</div>
+                        <div class="flex gap-1.5">${setsHtml}</div>
                     </div>
-                    <div class="p-5 flex-1 space-y-4 relative">
-                        ${data.finished ? `
-                        <div class="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center animate-fade">
-                            <div class="bg-vt text-white px-4 py-2 rounded-2xl shadow-xl border-2 border-white text-center scale-110">
-                                <p class="text-[10px] font-black uppercase tracking-tighter opacity-80">Chiến Thắng</p>
-                                <p class="text-sm font-black leading-tight">${data.winner}</p>
-                            </div>
-                        </div>` : ''}
+                    <div class="p-6 space-y-5">
                         <div class="flex items-center justify-between">
-                            <div class="flex-1 truncate">
-                                <label class="text-[9px] font-bold text-slate-300 uppercase block">${data.isFixedA ? 'Vòng trước (Khóa)' : 'Đội A'}</label>
-                                <input type="text" value="${data.teamA}" ${data.isFixedA ? 'readonly' : ''} onchange="updateName('${m.id}', 'teamA', this.value)" class="bg-transparent font-bold text-slate-700 w-full outline-none text-sm" placeholder="...">
+                            <div class="flex-1 min-w-0 pr-2">
+                                <label class="text-[8px] font-bold text-slate-300 uppercase block mb-1">Đội A</label>
+                                <p class="font-extrabold text-slate-700 text-sm truncate">${teamsInfo[m.tA]}</p>
                             </div>
                             <div class="flex items-center gap-3">
-                                <button onclick="score('${m.id}', 'a', 1)" class="w-10 h-10 bg-vt text-white rounded-xl flex items-center justify-center active:scale-90 shadow-lg shadow-vt/20">+</button>
-                                <span class="text-3xl font-black ${data.liveScore.a > data.liveScore.b ? 'text-vt' : 'text-slate-300'}">${data.liveScore.a}</span>
+                                <button onclick="changeScore('${id}', 'a', 1)" class="w-9 h-9 bg-vt text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95">+</button>
+                                <span class="text-3xl font-black ${m.liveScore.a > m.liveScore.b ? 'text-vt' : 'text-slate-300'}">${m.liveScore.a}</span>
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="flex-1 truncate">
-                                <label class="text-[9px] font-bold text-slate-300 uppercase block">${data.isFixedB ? 'Vòng trước (Khóa)' : 'Đội B'}</label>
-                                <input type="text" value="${data.teamB}" ${data.isFixedB ? 'readonly' : ''} onchange="updateName('${m.id}', 'teamB', this.value)" class="bg-transparent font-bold text-slate-700 w-full outline-none text-sm" placeholder="...">
+                            <div class="flex-1 min-w-0 pr-2">
+                                <label class="text-[8px] font-bold text-slate-300 uppercase block mb-1">Đội B</label>
+                                <p class="font-extrabold text-slate-700 text-sm truncate">${teamsInfo[m.tB]}</p>
                             </div>
                             <div class="flex items-center gap-3">
-                                <button onclick="score('${m.id}', 'b', 1)" class="w-10 h-10 bg-slate-800 text-white rounded-xl flex items-center justify-center active:scale-90 shadow-lg shadow-slate-800/20">+</button>
-                                <span class="text-3xl font-black ${data.liveScore.b > data.liveScore.a ? 'text-slate-800' : 'text-slate-300'}">${data.liveScore.b}</span>
+                                <button onclick="changeScore('${id}', 'b', 1)" class="w-9 h-9 bg-slate-800 text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95">+</button>
+                                <span class="text-3xl font-black ${m.liveScore.b > m.liveScore.a ? 'text-slate-800' : 'text-slate-300'}">${m.liveScore.b}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="p-5 pt-0">
-                        ${data.finished ? 
-                            `<button onclick="reopen('${m.id}')" class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-[10px] font-black uppercase">Sửa kết quả</button>` :
-                            `<button onclick="openModal('${m.id}')" class="w-full py-4 bg-vt/5 text-vt border border-vt/20 rounded-xl text-[10px] font-black uppercase tracking-widest">Hiệp ${data.currentSet}</button>`
+                    <div class="px-6 pb-6 mt-auto">
+                        ${m.finished ? 
+                            `<button onclick="reopenMatch('${id}')" class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-[9px] font-black uppercase">Chỉnh sửa</button>` :
+                            `<button onclick="openScoreModal('${id}')" class="w-full py-4 bg-vt/5 text-vt border border-vt/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-vt hover:text-white transition-all">Lưu Hiệp ${m.sets.length + 1}</button>`
                         }
                     </div>`;
                 grid.appendChild(card);
@@ -309,153 +286,100 @@
             const content = document.getElementById('bxh-content');
             content.innerHTML = '';
             
-            const categories = [
-                { name: 'Nội dung Nam', ids: { final: 'ck1', third: 'ck2' } },
-                { name: 'Nội dung Nữ', ids: { final: 'ck3', third: 'ck4' } },
-                { name: 'Đôi Nam - Nữ', ids: { final: 'ck5', third: 'ck6' } }
-            ];
+            // Tính toán điểm
+            const stats = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
+            const setsWon = { 'A': 0, 'B': 0, 'C': 0, 'D': 0 };
 
-            categories.forEach(cat => {
-                const fData = db['chung-ket'][1][cat.ids.final];
-                const tData = db['chung-ket'][1][cat.ids.third];
-                
-                let rank1 = '...', rank2 = '...', rank3 = '...';
-                
-                if (fData.finished) {
-                    rank1 = fData.winner;
-                    rank2 = fData.winner === fData.teamA ? fData.teamB : fData.teamA;
-                }
-                if (tData.finished) {
-                    rank3 = tData.winner;
-                }
+            Object.values(db.matches).forEach(m => {
+                m.sets.forEach(s => {
+                    if(s.a > s.b) setsWon[m.tA]++;
+                    else if(s.b > s.a) setsWon[m.tB]++;
+                });
+            });
 
-                const widget = document.createElement('div');
-                widget.className = 'bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex flex-col items-center';
-                widget.innerHTML = `
-                    <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-8">${cat.name}</h3>
-                    <div class="w-full space-y-6">
-                        <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl relative overflow-hidden">
-                            <div class="w-12 h-12 podium-1 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">1</div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase">Vô Địch</p>
-                                <p class="text-sm font-black text-slate-800">${rank1}</p>
-                            </div>
-                            <div class="absolute right-0 top-0 bottom-0 w-1 bg-yellow-400"></div>
-                        </div>
-                        <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl">
-                            <div class="w-12 h-12 podium-2 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">2</div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase">Hạng Nhì</p>
-                                <p class="text-sm font-black text-slate-800">${rank2}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-3xl">
-                            <div class="w-12 h-12 podium-3 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">3</div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase">Hạng Ba</p>
-                                <p class="text-sm font-black text-slate-800">${rank3}</p>
-                            </div>
-                        </div>
+            const ranking = Object.keys(teamsInfo).map(code => ({
+                code,
+                name: teamsInfo[code],
+                wonSets: setsWon[code],
+                totalPoints: setsWon[code] * 3
+            })).sort((a, b) => b.totalPoints - a.totalPoints);
+
+            ranking.forEach((team, idx) => {
+                const item = document.createElement('div');
+                const isTop = idx < 3;
+                item.className = `flex items-center gap-4 bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm animate-fade`;
+                item.style.animationDelay = `${idx * 0.1}s`;
+                
+                item.innerHTML = `
+                    <div class="w-12 h-12 flex-shrink-0 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg ${idx===0 ? 'podium-1' : idx===1 ? 'podium-2' : idx===2 ? 'podium-3' : 'bg-slate-200 text-slate-400'}">
+                        ${idx + 1}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">Team ${team.code}</p>
+                        <h4 class="font-extrabold text-slate-800 text-sm truncate">${team.name}</h4>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">Điểm số</p>
+                        <p class="text-xl font-black text-vt">${team.totalPoints}</p>
+                        <p class="text-[8px] font-medium text-slate-300">${team.wonSets} sets thắng</p>
                     </div>
                 `;
-                content.appendChild(widget);
+                content.appendChild(item);
             });
         }
 
-        function autoPromote(matchId) {
-            const template = matchTemplates[currentTab][currentRound].find(t => t.id === matchId);
-            const data = db[currentTab][currentRound][matchId];
-            if (!data.finished || !data.winner) return;
-
-            if (currentTab === 'tu-ket' && template.next) {
-                const target = db['ban-ket'][1][template.next.id];
-                if (template.next.slot === 'A') { target.teamA = data.winner; target.isFixedA = true; }
-                else { target.teamB = data.winner; target.isFixedB = true; }
-            } else if (currentTab === 'ban-ket' && template.nextWinner) {
-                const winner = data.winner, loser = (winner === data.teamA) ? data.teamB : data.teamA;
-                const wTarget = db['chung-ket'][1][template.nextWinner.id];
-                if (template.nextWinner.slot === 'A') { wTarget.teamA = winner; wTarget.isFixedA = true; }
-                else { wTarget.teamB = winner; wTarget.isFixedB = true; }
-                const lTarget = db['chung-ket'][1][template.nextLoser.id];
-                if (template.nextLoser.slot === 'A') { lTarget.teamA = loser; lTarget.isFixedA = true; }
-                else { lTarget.teamB = loser; lTarget.isFixedB = true; }
-            }
-            saveDB();
-        }
-
-        function switchTab(tabId) {
-            currentTab = tabId; currentRound = 1;
-            document.querySelectorAll('header button[id^="tab-"]').forEach(btn => {
-                btn.classList.toggle('tab-active', btn.id === `tab-${tabId}`);
-                btn.classList.toggle('text-white/70', btn.id !== `tab-${tabId}`);
-            });
-            document.getElementById('round-selector').style.display = (tabId === 'tu-ket') ? 'flex' : 'none';
-            const titles = { 'tu-ket': 'Vòng Tứ Kết', 'ban-ket': 'Vòng Bán Kết', 'chung-ket': 'Vòng Chung Kết', 'bxh': 'Bảng Xếp Hạng' };
-            document.getElementById('phase-title').innerText = titles[tabId];
-            updateRoundUI(); renderMatches();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function switchRound(r) { currentRound = r; updateRoundUI(); renderMatches(); }
-
-        function updateRoundUI() {
-            const r1 = document.getElementById('btn-round-1'), r2 = document.getElementById('btn-round-2');
-            if(!r1 || !r2) return;
-            [r1, r2].forEach((r, idx) => {
-                const isActive = (idx + 1) === currentRound;
-                r.className = `px-6 py-2 rounded-full text-xs font-bold border border-vt transition-all ${isActive ? 'bg-vt text-white' : 'text-vt bg-white'}`;
-            });
-        }
-
-        function updateName(id, field, val) { 
-            const d = db[currentTab][currentRound][id];
-            if ((field === 'teamA' && d.isFixedA) || (field === 'teamB' && d.isFixedB)) return;
-            d[field] = val; saveDB(); 
-        }
-        
-        function score(id, team, delta) {
-            const d = db[currentTab][currentRound][id];
-            if(d.finished) return;
-            d.liveScore[team] = Math.max(0, d.liveScore[team] + delta);
+        function changeScore(id, team, delta) {
+            const m = db.matches[id];
+            if(m.finished) return;
+            m.liveScore[team] = Math.max(0, m.liveScore[team] + delta);
             saveDB(); renderMatches();
         }
 
-        function openModal(id) {
-            const d = db[currentTab][currentRound][id];
-            if(!d.teamA.trim() || !d.teamB.trim()) { showToast("Nhập tên đội!"); return; }
-            document.getElementById('modal-team-a').innerText = d.teamA;
-            document.getElementById('modal-team-b').innerText = d.teamB;
-            document.getElementById('modal-score-a').innerText = d.liveScore.a;
-            document.getElementById('modal-score-b').innerText = d.liveScore.b;
-            document.getElementById('confirm-finish-btn').onclick = () => confirmFinish(id);
-            document.getElementById('history-modal').classList.replace('hidden', 'flex');
+        function openScoreModal(id) {
+            const m = db.matches[id];
+            document.getElementById('modal-set-num').innerText = m.sets.length + 1;
+            document.getElementById('modal-team-a').innerText = teamsInfo[m.tA];
+            document.getElementById('modal-team-b').innerText = teamsInfo[m.tB];
+            document.getElementById('modal-score-a').innerText = m.liveScore.a;
+            document.getElementById('modal-score-b').innerText = m.liveScore.b;
+            document.getElementById('confirm-set-btn').onclick = () => confirmSet(id);
+            document.getElementById('score-modal').classList.replace('hidden', 'flex');
         }
 
-        function closeModal() { document.getElementById('history-modal').classList.replace('flex', 'hidden'); }
+        function closeModal() { document.getElementById('score-modal').classList.replace('flex', 'hidden'); }
 
-        function confirmFinish(id) {
-            const d = db[currentTab][currentRound][id];
-            d.sets.push({ a: d.liveScore.a, b: d.liveScore.b });
-            const wA = d.sets.filter(s => s.a > s.b).length, wB = d.sets.filter(s => s.b > s.a).length;
-            if(wA === 2 || wB === 2 || d.sets.length === 3) {
-                if (wA === wB) { d.sets.pop(); showToast("Đánh tiếp hiệp quyết định!"); }
-                else { d.finished = true; d.winner = wA > wB ? d.teamA : d.teamB; autoPromote(id); showToast(`Xác nhận: ${d.winner} thắng!`); }
-            } else { d.currentSet++; }
-            d.liveScore = { a: 0, b: 0 };
-            saveDB(); closeModal(); renderMatches();
+        function confirmSet(id) {
+            const m = db.matches[id];
+            // Lưu hiệp vừa đánh
+            m.sets.push({ a: m.liveScore.a, b: m.liveScore.b });
+            
+            // Reset điểm live
+            m.liveScore = { a: 0, b: 0 };
+            
+            // Nếu đủ 3 hiệp thì kết thúc trận
+            if(m.sets.length === 3) {
+                m.finished = true;
+                showToast("Đã hoàn thành 3 hiệp đấu!");
+            } else {
+                showToast(`Đã lưu Hiệp ${m.sets.length}`);
+            }
+            
+            saveDB();
+            closeModal();
+            renderMatches();
         }
 
-        function reopen(id) {
-            if(confirm("Mở lại trận đấu này?")) {
-                const d = db[currentTab][currentRound][id];
-                const last = d.sets.pop();
-                d.liveScore = { a: last.a, b: last.b };
-                d.finished = false; d.winner = ''; d.currentSet = d.sets.length + 1;
+        function reopenMatch(id) {
+            if(confirm("Mở lại trận đấu này để chỉnh sửa hiệp cuối?")) {
+                const m = db.matches[id];
+                const last = m.sets.pop();
+                m.liveScore = { a: last.a, b: last.b };
+                m.finished = false;
                 saveDB(); renderMatches();
             }
         }
 
-        function resetTournament() { if(confirm("Xóa toàn bộ dữ liệu?")) initDB(); }
+        function resetTournament() { if(confirm("Xóa toàn bộ dữ liệu giải đấu?")) initDB(); }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -463,8 +387,13 @@
             setTimeout(() => { t.classList.replace('opacity-100', 'opacity-0'); t.classList.replace('translate-y-0', 'translate-y-10'); }, 3000);
         }
 
+        function renderAll() {
+            renderRoundSelector();
+            renderMatches();
+        }
+
         if (!db) initDB();
-        else renderMatches();
+        else renderAll();
     </script>
 </body>
 </html>
